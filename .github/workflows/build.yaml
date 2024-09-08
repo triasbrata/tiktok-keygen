@@ -29,7 +29,12 @@ jobs:
 
       - name: Build Electron app
         run: yarn build # Ensure your package.json has a build script
-      - run: ls -la dist
+      - name: List `dist` folder contents (Unix)
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+        run: ls -la dist
+      - name: List `dist` folder contents (Windows)
+        if: startsWith(matrix.os, 'windows')
+        run: dir dist
       - name: Find artifacts
         id: find_artifacts
         run: |
