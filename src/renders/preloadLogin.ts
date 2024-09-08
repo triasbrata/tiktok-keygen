@@ -1,5 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 
-contextBridge.exposeInMainWorld("electronAPI", {
-  getToken: () => ipcRenderer.invoke("getToken"),
-} as Partial<ElectronAPI>);
+const electronApi: ElectronAPIPreloadLogin = {
+  exchangeAuthCode: (authCode: string) =>
+    ipcRenderer.send("exchange-auth-code", authCode),
+};
+contextBridge.exposeInMainWorld("electronAPI", electronApi);

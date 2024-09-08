@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-const CONFIG_PATH = path.join(__dirname, "config.json");
+const CONFIG_PATH = path.join(__dirname, "../config.json");
 
 export function loadConfig(): {
   title: string;
@@ -17,11 +17,13 @@ export function loadConfig(): {
   }
 }
 
-export function saveConfig(config: {
-  title: string;
-  game: string;
-  token: string;
-}) {
+export function saveConfig(
+  config: Partial<{
+    title: string;
+    game: string;
+    token: string;
+  }>
+) {
   try {
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
   } catch (error) {

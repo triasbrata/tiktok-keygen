@@ -1,24 +1,29 @@
+import { install } from "source-map-support";
+install();
 import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import * as path from "path";
 import { Stream } from "./stream";
 import { TokenRetriever } from "./tiktok";
 import { loadConfig, saveConfig } from "./config";
+import WebSocket from "ws";
+import OBSWebSocket from "obs-websocket-js";
 
 let mainWindow: BrowserWindow | null = null;
 let streamInstance: Stream | null = null;
 
 const createWindow = () => {
+  const preloadPath = path.join(__dirname, "renders/preload.js");
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 700,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: preloadPath,
       nodeIntegration: false,
       contextIsolation: true,
     },
   });
 
-  mainWindow.loadFile(path.join(__dirname, "renderer", "index.html"));
+  mainWindow.loadFile(path.join(__dirname, "../", "main.html"));
 
   mainWindow.on("closed", () => {
     mainWindow = null;
@@ -45,7 +50,10 @@ ipcMain.handle("load-config", async () => {
 ipcMain.handle("save-config", async (event, config) => {
   saveConfig(config);
 });
-
+ipcMain.handle("listen-obs", async (event, config) => {
+  const obs = new OBSWebSocket();
+  await obs.connect(`ws://${config.url}`, config.password);
+});
 ipcMain.handle("load-token", async () => {
   // Implement loadToken logic if needed
   // For simplicity, returning null here
@@ -53,8 +61,21 @@ ipcMain.handle("load-token", async () => {
 });
 
 ipcMain.handle("fetch-online-token", async () => {
-  const retriever = new TokenRetriever();
+  console.log("boom");
+  const chromePath =
+    process.platform === "darwin"
+      ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+      : process.platform === "win32"
+      ? path.resolve("%ProgramFiles%\\Google\\Chrome\\Application\\chrome.exe")
+      : "";
+  if (chromePath === "") {
+    throw new Error("chrome browser not exists");
+  }
+  const retriever = new TokenRetriever(chromePath);
   const token = await retriever.retrieveToken();
+  if (token) {
+    saveConfig({ token });
+  }
   return token;
 });
 

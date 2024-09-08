@@ -3,6 +3,8 @@ interface Config {
   title: string;
   game: string;
   token: string;
+  obsServer: string;
+  password?: string;
 }
 
 interface Category {
@@ -53,7 +55,35 @@ window.addEventListener("DOMContentLoaded", () => {
     "openLiveMonitorButton"
   ) as HTMLButtonElement;
   const listbox = document.getElementById("listbox") as HTMLDivElement;
+  const listenOBS = document.getElementById("listenObs") as HTMLDivElement;
+  const obsServer = document.getElementById("obsServer") as HTMLInputElement;
+  const obsPassword = document.getElementById(
+    "obsPassword"
+  ) as HTMLInputElement;
+  const notUsingPasswordObs = document.getElementById(
+    "notUsingPassword"
+  ) as HTMLInputElement;
+  notUsingPasswordObs.addEventListener("change", () => {
+    if (notUsingPasswordObs.checked) {
+      obsPassword.setAttribute("disabled", "disabled");
+      return;
+    }
+    obsPassword.removeAttribute("disabled");
+  });
+  listenOBS.addEventListener("click", async () => {
+    const prevText = listenOBS.innerHTML;
+    listenOBS.setAttribute("disabled", "disabled");
+    listenOBS.innerHTML = "listening...";
 
+    await window.electronAPI.listenObs({
+      url: obsServer.value,
+      password: !notUsingPasswordObs.checked ? obsPassword.value : undefined,
+    });
+    window.electronAPI.onServerObsClose(() => {
+      listenOBS.removeAttribute("disabled");
+      listenOBS.innerHTML = prevText;
+    });
+  });
   let isTokenVisible = false;
 
   const showToken = () => {
@@ -139,6 +169,8 @@ window.addEventListener("DOMContentLoaded", () => {
       title: streamTitleInput.value,
       game: gameCategoryInput.value,
       token: tokenInput.value,
+      obsServer: obsServer.value,
+      password: !notUsingPasswordObs.checked ? obsPassword.value : undefined,
     };
     await window.electronAPI.saveConfig(config);
     alert("Configuration saved successfully!");
@@ -208,6 +240,12 @@ window.addEventListener("DOMContentLoaded", () => {
       streamTitleInput.value = config.title;
       gameCategoryInput.value = config.game;
       tokenInput.value = config.token;
+      obsServer.value = config.obsServer;
+      console.log({ config });
+      if (config.password) {
+        obsPassword.value = config.password;
+        notUsingPasswordObs.checked = false;
+      }
       if (config.token) {
         streamTitleInput.disabled = false;
         gameCategoryInput.disabled = false;
