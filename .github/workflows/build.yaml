@@ -25,10 +25,10 @@ jobs:
           node-version: "20" # Specify the Node.js version your project uses
 
       - name: Install dependencies
-        run: npm install
+        run: yarn
 
       - name: Build Electron app
-        run: npm run build # Ensure your package.json has a build script
+        run: yarn build # Ensure your package.json has a build script
 
       - name: Upload release artifacts
         run: |
