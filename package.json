@@ -32,6 +32,7 @@
       "node_modules/**"
     ],
     "directories": {
+      "output": "out", // Change the output directory to "out",
       "buildResources": "assets"
     }
   },

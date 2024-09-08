@@ -30,43 +30,9 @@ jobs:
       - name: Build Electron app
         run: yarn build # Ensure your package.json has a build script
 
-      - name: Set artifact file path (Windows)
-        if: startsWith(matrix.os, 'windows')
-        run: echo "artifact_path=dist/tiktok-keygen Setup 1.0.0.exe" >> $GITHUB_ENV
-
-      - name: Set artifact file paths (macOS)
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          echo "artifact_path_1=dist/tiktok-keygen-1.0.0-arm64.dmg" >> $GITHUB_ENV
-          echo "artifact_path_2=dist/tiktok-keygen-1.0.0-arm64-mac.zip" >> $GITHUB_ENV
-
-      - name: Set artifact file paths (Linux)
-        if: startsWith(matrix.os, 'ubuntu')
-        run: |
-          echo "artifact_path_1=dist/tiktok-keygen-1.0.0.AppImage" >> $GITHUB_ENV
-          echo "artifact_path_2=dist/tiktok-keygen_1.0.0_amd64.snap" >> $GITHUB_ENV
-
-      - name: Upload artifact (Windows)
-        if: startsWith(matrix.os, 'windows')
+      - name: Upload all artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: windows-tiktok-keygen
-          path: ${{ env.artifact_path }}
+          name: all-tiktok-keygen
+          path: out/*
 
-      - name: Upload artifacts (macOS)
-        if: startsWith(matrix.os, 'macos')
-        uses: actions/upload-artifact@v3
-        with:
-          name: macos-tiktok-keygen
-          path: |
-            ${{ env.artifact_path_1 }}
-            ${{ env.artifact_path_2 }}
-
-      - name: Upload artifacts (Linux)
-        if: startsWith(matrix.os, 'ubuntu')
-        uses: actions/upload-artifact@v3
-        with:
-          name: linux-tiktok-keygen
-          path: |
-            ${{ env.artifact_path_1 }}
-            ${{ env.artifact_path_2 }}
