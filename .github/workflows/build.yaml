@@ -30,13 +30,19 @@ jobs:
       - name: Build Electron app
         run: yarn build # Ensure your package.json has a build script
 
-      - name: Upload release artifacts
+      - name: Find artifacts
+        id: find_artifacts
         run: |
-          # Find all files matching the pattern and upload them
-          for file in dist/tiktok-keygen-*; do
-            if [[ -f "$file" ]]; then
-              echo "Uploading $file"
-              gh run upload-artifact --name "$(basename "$file")" --path "$file"
-            fi
+          files=$(ls dist/tiktok-keygen-*)
+          for file in $files; do
+            echo "artifact_path=$file" >> $GITHUB_ENV
+            filename=$(basename "$file")
+            echo "artifact_name=${{ matrix.os }}-$filename" >> $GITHUB_ENV
           done
         shell: bash
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.artifact_name }}
+          path: ${{ env.artifact_path }}
