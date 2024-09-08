@@ -1,0 +1,42 @@
+name: Build Electron App
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20" # Specify the Node.js version your project uses
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Electron app
+        run: npm run build # Ensure your package.json has a build script
+
+      - name: Upload release artifacts
+        run: |
+          # Find all files matching the pattern and upload them
+          for file in dist/tiktok-keygen-*; do
+            if [[ -f "$file" ]]; then
+              echo "Uploading $file"
+              gh run upload-artifact --name "$(basename "$file")" --path "$file"
+            fi
+          done
+        shell: bash
