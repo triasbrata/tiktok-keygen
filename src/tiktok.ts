@@ -1,7 +1,6 @@
 import { chromium, Browser, Page, Cookie } from "playwright-core";
 import axios from "axios";
 import * as crypto from "crypto";
-import * as zlib from "zlib";
 import * as fs from "fs";
 import * as path from "path";
 import { URL, URLSearchParams } from "url";
