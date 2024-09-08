@@ -8,6 +8,10 @@ on:
     branches:
       - master
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     strategy:
@@ -30,9 +34,13 @@ jobs:
       - name: Build Electron app
         run: yarn build # Ensure your package.json has a build script
 
-      - name: Upload all artifacts
-        uses: actions/upload-artifact@v3
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: all-tiktok-keygen
-          path: out/*
-
+          if-no-files-found: ignore
+          name: ${{ matrix.os }}-artifacts
+          path: |
+            out/*.exe
+            out/*.zip
+            out/*.dmg
+            out/*.AppImage

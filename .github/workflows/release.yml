@@ -1,0 +1,26 @@
+name: Create Release
+
+on:
+  workflow_run:
+    workflows: ["Build Electron App"]
+    types:
+      - completed
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: build.yaml
+          branch: master
+          path: out
+      - name: create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*
