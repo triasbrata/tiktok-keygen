@@ -53,6 +53,7 @@ const WindowFrame: React.FC<Props> = (props) => {
       <div className='start-electron-window' ref={itsRef}></div>
       {/* Window Titlebar */}
       <Titlebar
+        platform={platform}
         title={props.title ?? 'Electron Window'}
         mode='centered-title'
         icon={logo}

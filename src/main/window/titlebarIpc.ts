@@ -16,7 +16,7 @@ import { BrowserWindow, ipcMain, shell } from 'electron';
 export const registerTitlebarIpc = (mainWindow: BrowserWindow) => {
   ipcMain.handle(IpcEventName.Os, () => {
     if (process.platform === 'darwin') {
-      return 'macos';
+      return 'mac';
     }
     return 'windows';
   });

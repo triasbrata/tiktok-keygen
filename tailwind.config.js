@@ -1,80 +1,99 @@
+const config = require('./tools/tailwind/base.config');
+
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  darkMode: ['class'],
-  content: ['./src/**/*.{ts,tsx}'],
-  prefix: '',
+module.exports = config({
+  content: ['./src/renderer/**/*.{ts,tsx}'],
   theme: {
-    container: {
-      center: 'true',
-      padding: '2rem',
-      screens: {
-        '2xl': '1400px',
-      },
-    },
     extend: {
+      fontSize: {
+        grid: '13px',
+      },
       colors: {
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
-        primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+        /*  typography */
+        'typography-body': {
+          light: 'hsl(var(--foreground-light))',
+          dark: 'hsl(var(--foreground-light))',
         },
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
+        'typography-body-secondary': {
+          light: 'hsl(var(--foreground-lighter))',
+          dark: 'hsl(var(--foreground-lighter))',
         },
-        destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
+        'typography-body-strong': {
+          light: 'hsl(var(--foreground-default))',
+          dark: 'hsl(var(--foreground-default))',
         },
-        muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
+        'typography-body-faded': {
+          light: 'hsl(var(--foreground-muted))',
+          dark: 'hsl(var(--foreground-muted))',
         },
-        accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
+
+        /* Tables */
+        'table-body': {
+          light: 'hsl(var(--background-default))',
+          dark: 'hsl(var(--background-default))',
         },
-        popover: {
-          DEFAULT: 'hsl(var(--popover))',
-          foreground: 'hsl(var(--popover-foreground))',
+        'table-header': {
+          light: 'hsl(var(--background-surface-100))',
+          dark: 'hsl(var(--background-surface-100))',
         },
-        card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
+        'table-footer': {
+          light: 'hsl(var(--background-surface-100))',
+          dark: 'hsl(var(--background-surface-100))',
+        },
+        'table-border': {
+          light: 'hsl(var(--border-default))',
+          dark: 'hsl(var(--border-default))',
+        },
+
+        /* Panels */
+        'panel-body': {
+          light: 'hsl(var(--background-surface-100))',
+          dark: 'hsl(var(--background-surface-100))',
+        },
+        'panel-header': {
+          light: 'hsl(var(--background-surface-100))',
+          dark: 'hsl(var(--background-surface-100))',
+        },
+        'panel-footer': {
+          light: 'hsl(var(--background-surface-100))',
+          dark: 'hsl(var(--background-surface-100))',
+        },
+        'panel-border': {
+          light: 'hsl(var(--border-default))',
+          dark: 'hsl(var(--border-default))',
+        },
+        'panel-border-interior': {
+          light: 'hsl(var(--border-muted))',
+          dark: 'hsl(var(--border-muted))',
+        },
+        'panel-border-hover': {
+          light: 'hsl(var(--border-muted))',
+          dark: 'hsl(var(--border-muted))',
         },
       },
-      borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+
+      animation: {
+        shimmer: 'shimmer 2s infinite linear',
+        sway: 'sway 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       keyframes: {
-        'accordion-down': {
-          from: {
-            height: '0',
+        shimmer: {
+          '0%': {
+            'background-position': '-1000px 0',
           },
-          to: {
-            height: 'var(--radix-accordion-content-height)',
-          },
-        },
-        'accordion-up': {
-          from: {
-            height: 'var(--radix-accordion-content-height)',
-          },
-          to: {
-            height: '0',
+          '100%': {
+            'background-position': '1000px 0',
           },
         },
-      },
-      animation: {
-        'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out',
+        sway: {
+          '0%, 100%': {
+            transform: 'rotate(-10deg) scale(1.5) translateY(4rem)',
+          },
+          '50%': {
+            transform: 'rotate(10deg) scale(1.5) translateY(2rem)',
+          },
+        },
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
-};
+});

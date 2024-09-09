@@ -16,8 +16,9 @@ import context from '@main/window/titlebarContextApi';
 
 import ControlButton from './ControlButton';
 import { Minus, Moon, Square, Sun, X } from 'lucide-react';
+import { platform } from 'os';
 type Props = {
-  platform: string;
+  platform: 'mac' | 'windows';
   tooltips?: boolean;
 };
 
@@ -48,37 +49,37 @@ const WindowControls: React.FC<Props> = (props) => {
   function toggleTheme() {
     setDarkTheme(!darkTheme);
   }
+  console.log(props.platform);
   return (
-    <section
-      className={classNames(
-        'window-titlebar-controls',
-        `type-${props.platform}`,
-      )}
-    >
+    <section className={classNames('window-titlebar-controls', `type-windows`)}>
       <ControlButton
         name='theme'
         onClick={() => toggleTheme()}
         svgIcon={darkTheme ? <Moon size={16} /> : <Sun size={16} />}
         title={props.tooltips ? 'Theme' : null}
       />
-      <ControlButton
-        name='minimize'
-        onClick={() => context.minimize()}
-        svgIcon={<Minus size={16} />}
-        title={props.tooltips ? 'Minimize' : null}
-      />
-      <ControlButton
-        name='maximize'
-        onClick={() => context.toggle_maximize()}
-        svgIcon={<Square size={16} />}
-        title={props.tooltips ? 'Maximize' : null}
-      />
-      <ControlButton
-        name='close'
-        onClick={() => context.exit()}
-        svgIcon={<X size={16} />}
-        title={props.tooltips ? 'Close' : null}
-      />
+      {props.platform !== 'mac' && (
+        <>
+          <ControlButton
+            name='minimize'
+            onClick={() => context.minimize()}
+            svgIcon={<Minus size={16} />}
+            title={props.tooltips ? 'Minimize' : null}
+          />
+          <ControlButton
+            name='maximize'
+            onClick={() => context.toggle_maximize()}
+            svgIcon={<Square size={16} />}
+            title={props.tooltips ? 'Maximize' : null}
+          />
+          <ControlButton
+            name='close'
+            onClick={() => context.exit()}
+            svgIcon={<X size={16} />}
+            title={props.tooltips ? 'Close' : null}
+          />
+        </>
+      )}
     </section>
   );
 };
