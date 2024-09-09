@@ -115,14 +115,19 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   fetchOnlineTokenButton.addEventListener("click", async () => {
-    const token = await window.electronAPI.fetchOnlineToken();
-    if (token) {
-      tokenInput.value = token;
-      streamTitleInput.disabled = false;
-      gameCategoryInput.disabled = false;
-      goLiveButton.disabled = false;
-    } else {
-      alert("Failed to fetch token online.");
+    try {
+      const token = await window.electronAPI.fetchOnlineToken();
+      if (token) {
+        tokenInput.value = token;
+        streamTitleInput.disabled = false;
+        gameCategoryInput.disabled = false;
+        goLiveButton.disabled = false;
+      } else {
+        alert("Failed to fetch token online.");
+      }
+    } catch (error: any) {
+      alert(error.message);
+      console.error(error);
     }
   });
 

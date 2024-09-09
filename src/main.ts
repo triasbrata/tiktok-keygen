@@ -61,12 +61,13 @@ ipcMain.handle("load-token", async () => {
 });
 
 ipcMain.handle("fetch-online-token", async () => {
-  console.log("boom");
   const chromePath =
     process.platform === "darwin"
       ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
       : process.platform === "win32"
-      ? path.resolve("%ProgramFiles%\\Google\\Chrome\\Application\\chrome.exe")
+      ? path.resolve(
+          "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        )
       : "";
   if (chromePath === "") {
     throw new Error("chrome browser not exists");
