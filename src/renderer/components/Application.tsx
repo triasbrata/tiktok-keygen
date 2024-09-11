@@ -19,6 +19,7 @@ import {
 import { Badge } from './ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { Button } from './ui/button';
+import { CustomScroll } from 'react-custom-scroll';
 
 export default function Application() {
   return (
