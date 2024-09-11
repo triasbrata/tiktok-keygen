@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import WindowFrame from '@renderer/window/WindowFrame';
-import Application from '@components/Application';
+import Layout from '@components/Layout';
 import '@styles/app.scss';
 import '@styles/global.css';
 import 'react-data-grid/lib/styles.css';
@@ -17,12 +17,14 @@ import '@styles/ui/supabase/ui.scss';
 import '@styles/ui/build/css/themes/dark.css';
 import '@styles/ui/build/css/themes/light.css';
 import { TooltipProvider } from '@components/ui/tooltip';
-import { Dashboard } from '@components/Dashboard';
+import Application from '@components/Application';
 // Application to Render
 const app = (
   <WindowFrame title='Tiktok OBS'>
     <TooltipProvider>
-      <Application />
+      <Layout>
+        <Application />
+      </Layout>
     </TooltipProvider>
   </WindowFrame>
 );
