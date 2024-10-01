@@ -36,11 +36,11 @@ export default function Sidebar() {
               <SquareTerminal className='size-5' />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side='right' sideOffset={4} className='bg-main'>
+          <TooltipContent side='right' sideOffset={4} className='bg-background'>
             Playground
           </TooltipContent>
         </Tooltip>
-        <Tooltip>
+        <Tooltip open={true}>
           <TooltipTrigger asChild>
             <Button
               variant='ghost'
@@ -51,7 +51,7 @@ export default function Sidebar() {
               <Bot className='size-5' />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side='right' sideOffset={4} className='bg-main'>
+          <TooltipContent side='right' sideOffset={4} className='bg-background'>
             Models
           </TooltipContent>
         </Tooltip>
@@ -66,7 +66,7 @@ export default function Sidebar() {
               <Code2 className='size-5' />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side='right' sideOffset={4} className='bg-main'>
+          <TooltipContent side='right' sideOffset={4} className='bg-background'>
             API
           </TooltipContent>
         </Tooltip>
@@ -81,7 +81,7 @@ export default function Sidebar() {
               <Book className='size-5' />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side='right' sideOffset={4} className='bg-main'>
+          <TooltipContent side='right' sideOffset={4} className='bg-background'>
             Documentation
           </TooltipContent>
         </Tooltip>
@@ -96,7 +96,7 @@ export default function Sidebar() {
               <Settings2 className='size-5' />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side='right' sideOffset={4} className='bg-main'>
+          <TooltipContent side='right' sideOffset={4} className='bg-background'>
             Settings
           </TooltipContent>
         </Tooltip>
@@ -113,7 +113,7 @@ export default function Sidebar() {
               <LifeBuoy className='size-5' />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side='right' sideOffset={4} className='bg-main'>
+          <TooltipContent side='right' sideOffset={4} className='bg-background'>
             Help
           </TooltipContent>
         </Tooltip>
@@ -128,7 +128,7 @@ export default function Sidebar() {
               <SquareUser className='size-5' />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side='right' sideOffset={4} className='bg-main'>
+          <TooltipContent side='right' sideOffset={4} className='bg-background'>
             Account
           </TooltipContent>
         </Tooltip>

@@ -17,6 +17,7 @@ import context from '@main/window/titlebarContextApi';
 import ControlButton from './ControlButton';
 import { Minus, Moon, Square, Sun, X } from 'lucide-react';
 import { platform } from 'os';
+import { useTheme } from 'next-themes';
 type Props = {
   platform: 'mac' | 'windows';
   tooltips?: boolean;
@@ -28,34 +29,28 @@ const maximizePath = 'M 0,0 0,10 10,10 10,0 Z M 1,1 9,1 9,9 1,9 Z';
 const minimizePath = 'M 0,5 10,5 10,6 0,6 Z';
 
 const WindowControls: React.FC<Props> = (props) => {
-  const [darkTheme, setDarkTheme] = useState(true);
-
-  /**
-   * On Dark theme change
-   */
-  useEffect(() => {
-    if (darkTheme) {
-      localStorage.setItem('dark-mode', '1');
-      document.body.classList.add('dark-mode');
-    } else {
-      localStorage.setItem('dark-mode', '0');
-      document.body.classList.remove('dark-mode');
-    }
-  }, [darkTheme]);
-
+  const { theme, setTheme } = useTheme();
+  console.log({ theme });
   /**
    * Toggle Theme
    */
   function toggleTheme() {
-    setDarkTheme(!darkTheme);
+    console.log('here');
+    if (theme?.includes('dark')) {
+      setTheme('light');
+      return;
+    }
+    setTheme('dark');
+    return;
   }
-  console.log(props.platform);
   return (
     <section className={classNames('window-titlebar-controls', `type-windows`)}>
       <ControlButton
         name='theme'
         onClick={() => toggleTheme()}
-        svgIcon={darkTheme ? <Moon size={16} /> : <Sun size={16} />}
+        svgIcon={
+          theme?.includes('dark') ? <Moon size={16} /> : <Sun size={16} />
+        }
         title={props.tooltips ? 'Theme' : null}
       />
       {props.platform !== 'mac' && (

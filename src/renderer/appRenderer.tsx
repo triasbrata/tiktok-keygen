@@ -16,16 +16,22 @@ import '@styles/ui/supabase/toast.scss';
 import '@styles/ui/supabase/ui.scss';
 import '@styles/ui/build/css/themes/dark.css';
 import '@styles/ui/build/css/themes/light.css';
-import { TooltipProvider } from '@components/ui/tooltip';
+import WrapperProvider from './provider/WrapperProvider';
 import Application from '@components/Application';
 // Application to Render
 const app = (
   <WindowFrame title='Tiktok OBS'>
-    <TooltipProvider>
+    <WrapperProvider
+      themes={{
+        enableSystem: true,
+        themes: ['dark', 'light', 'classic-dark'],
+        defaultTheme: 'system',
+      }}
+    >
       <Layout>
         <Application />
       </Layout>
-    </TooltipProvider>
+    </WrapperProvider>
   </WindowFrame>
 );
 
