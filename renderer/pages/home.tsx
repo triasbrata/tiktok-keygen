@@ -30,7 +30,7 @@ export const description =
 
 export default function HomePage() {
   return (
-    <main className="grid flex-1 gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3">
+    <main className="grid h-full gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3">
       <div
         className="relative hidden flex-col items-start gap-8 md:flex"
         x-chunk="dashboard-03-chunk-0"
