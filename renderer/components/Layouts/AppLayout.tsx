@@ -153,7 +153,9 @@ export default function AppLayout({ children }: PropsWithChildren) {
             Share
           </Button>
         </header>
-        <CustomScroll flex="1">{children}</CustomScroll>
+        <CustomScroll flex="1" heightRelativeToParent="100%">
+          {children}
+        </CustomScroll>
       </div>
     </div>
   );
