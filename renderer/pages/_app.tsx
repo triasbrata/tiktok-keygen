@@ -2,14 +2,19 @@ import React from "react";
 import type { AppProps } from "next/app";
 
 import "../styles/globals.css";
-import Layout from "../components/Layout";
+import ProviderWrapper from "../components/provider/ProviderWrapper";
+import WindowFrame from "@/components/window/WindowFrame";
+import dynamic from "next/dynamic";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
+    <ProviderWrapper>
+      <WindowFrame>
+        <Component {...pageProps} />
+      </WindowFrame>
+    </ProviderWrapper>
   );
 }
-
-export default MyApp;
+export default dynamic(() => Promise.resolve(MyApp), {
+  ssr: false,
+});
