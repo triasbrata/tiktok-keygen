@@ -52,12 +52,18 @@ export default function WindowFrame({
       }
     }
   }, []);
+  const handler = (action: string, value: any) => {
+    const fn = context()[action];
+    if (typeof fn === "function") {
+      fn(value);
+    }
+  };
   const { theme, setTheme } = useTheme();
   return (
     <div className="overflow-x-hidden">
-      <div className="h-[36px] w-full p-3 pt-2 border-solid border-0 border-b border-foreground/900">
+      <div className="h-[36px] w-full p-3 pt-2 border-solid border-0 border-b border-foreground/900 window-frame">
         <div className="flex flex-row">
-          <div className="grid grid-flow-col gap-4">
+          <div className="actions grid grid-flow-col gap-4">
             {titlebarMenus.map((it, i) => {
               return (
                 <DropdownMenu key={i}>
@@ -68,8 +74,12 @@ export default function WindowFrame({
                       if (item.name === "__") {
                         return <DropdownMenuSeparator />;
                       }
+
                       return (
-                        <DropdownMenuItem key={id}>
+                        <DropdownMenuItem
+                          key={id}
+                          onClick={() => handler(item.action, item.value)}
+                        >
                           <span>{item.name}</span>
                           <DropdownMenuShortcut>
                             {item.shortcut}
@@ -85,8 +95,8 @@ export default function WindowFrame({
           <div
             className="grow"
             onDoubleClick={() => context().toggle_maximize()}
-          ></div>
-          <div className="grid grid-flow-col gap-4">
+          />
+          <div className="actions grid grid-flow-col gap-4">
             <div>
               {theme === "dark" ? (
                 <button onClick={() => setTheme("light")}>
