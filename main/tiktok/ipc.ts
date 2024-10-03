@@ -18,6 +18,7 @@ export function registerTiktokIpc(window: BrowserWindow) {
     if (!existsSync(browserPath)) {
       throw new Error("No Chrome detected");
     }
+
     const cachePath = await repo.getCachePath();
     const retriever = new TokenRetriever(browserPath, cachePath);
     const token = await retriever.retrieveToken();

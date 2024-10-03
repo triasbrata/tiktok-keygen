@@ -8,6 +8,7 @@ import * as crypto from "crypto";
 import * as fs from "fs";
 import * as path from "path";
 import { URL, URLSearchParams } from "url";
+import { json } from "stream/consumers";
 
 export class TokenRetriever {
   CLIENT_KEY = "awdjaq9ide8ofrtz";
@@ -80,12 +81,18 @@ export class TokenRetriever {
 
   // Function to launch Playwright and retrieve the token
   async retrieveToken(): Promise<string | null> {
+    const res = await this.getToken();
+    if (typeof this.browser?.close === "function") {
+      await this.browser.close();
+    }
+    return res;
+  }
+  async getToken() {
     try {
       this.browser = await chromium.launch({
         executablePath: this.browserPath, // Use the custom browser path
         headless: false, // For debugging, you can set this to true for headless
       });
-
       const context = await this.browser.newContext();
       const page = await context.newPage();
       let auth_code = "";
@@ -109,58 +116,61 @@ export class TokenRetriever {
         }
         return route.continue();
       });
-      // Load TikTok authentication page
-      await page.goto("https://www.tiktok.com");
-
       // Load cookies if available
       await this.loadCookies(page);
+      // Load TikTok authentication page
+      await page.goto("https://www.tiktok.com/login");
 
       // Navigate to Streamlabs OAuth page
       await page.goto(this.streamlabs_auth_url);
       let timeout = 0;
       do {
+        if (page.isClosed()) {
+          throw new Error("browser already closed");
+        }
         await new Promise<void>((res) => {
           setTimeout(() => res(), 1000);
         });
         timeout++;
       } while (auth_code == "" || timeout >= 600);
       //close browser
+      await page.close();
       // Wait for the login and consent process to complete
       if (auth_code) {
         // Exchange the authorization code for an access token
         return this.exchangeCodeForToken(auth_code);
       } else {
-        console.error("Authorization code not found.");
-        return null;
+        throw new Error("Authorization code not found.");
       }
     } catch (error) {
-      console.error("Error retrieving token:", error);
-      return null;
-    } finally {
-      if (this.browser) {
-        await this.browser.close();
-      }
+      throw new Error("Error retrieving token:", error.message);
     }
   }
 
   // Function to exchange the authorization code for an access token
   async exchangeCodeForToken(auth_code: string): Promise<string | null> {
     const tokenRequestUrl = `${this.STREAMLABS_API_URL}?code_verifier=${this.code_verifier}&code=${auth_code}`;
-    console.log("token: ", tokenRequestUrl);
+    const page = await this.browser.newPage();
     try {
-      const response = await axios.request({
-        url: tokenRequestUrl,
-        method: "get",
-        maxBodyLength: Infinity,
-        headers: {},
+      const response = await page.goto(tokenRequestUrl);
+
+      const resBody = await response.body();
+      const resJson = await new Promise<Record<string, any>>((res, rej) => {
+        try {
+          res(JSON.parse(resBody.toString("utf-8")));
+        } catch (error) {
+          rej(error);
+        }
       });
-      if (response.data.success) {
-        return response.data.data.oauth_token;
+
+      if (resJson.success) {
+        return resJson.data.oauth_token;
       } else {
         console.error("Failed to retrieve token.");
         return null;
       }
     } catch (error: any) {
+      console.log(error);
       console.error("Error exchanging code for token:", error.message);
       return null;
     }
