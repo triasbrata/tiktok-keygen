@@ -3,6 +3,7 @@ import {
   Bot,
   Code2,
   LifeBuoy,
+  Settings,
   Settings2,
   Share,
   SquareTerminal,
@@ -18,11 +19,15 @@ import {
 } from "@/components/ui/tooltip";
 import { PropsWithChildren } from "react";
 import { CustomScroll } from "@/libs/custom-scrollbar";
+import { useRouter } from "next/router";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 export const description =
   "An AI playground with a sidebar navigation and a main content area. The playground has a header with a settings drawer and a share button. The sidebar has navigation links and a user menu. The main content area shows a form to configure the model and messages.";
 
 export default function AppLayout({ children }: PropsWithChildren) {
+  const router = useRouter();
   return (
     <div className="grid h-fullbody w-full pl-[56px]">
       <aside className="inset-y fixed  left-0 z-20 flex h-full flex-col border-r">
@@ -31,20 +36,41 @@ export default function AppLayout({ children }: PropsWithChildren) {
             <Triangle className="size-5 fill-foreground" />
           </Button>
         </div>
-        <nav className="grid gap-1 p-2">
+        <nav className="grid gap-4 p-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link href={"/setup/account"}>
+                <Avatar className="ml-1 mt-2 w-[32px] h-[32px]">
+                  <AvatarImage
+                    style={{ filter: "grayscale(100%)" }}
+                    src="https://github.com/shadcn.png"
+                  />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={5}>
+              <span>@username</span>
+              <br />
+              <span>Disconnected</span>
+            </TooltipContent>
+          </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="rounded-lg bg-muted"
-                aria-label="Playground"
+                className="rounded-lg"
+                aria-label="Setup"
+                asChild
               >
-                <SquareTerminal className="size-5" />
+                <Link href={"/home"}>
+                  <Settings className="size-5" />
+                </Link>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right" sideOffset={5}>
-              Playground
+              Setup
             </TooltipContent>
           </Tooltip>
           <Tooltip>
@@ -69,8 +95,11 @@ export default function AppLayout({ children }: PropsWithChildren) {
                 size="icon"
                 className="rounded-lg"
                 aria-label="API"
+                asChild
               >
-                <Code2 className="size-5" />
+                <Link href={"/next"}>
+                  <Code2 className="size-5" />
+                </Link>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right" sideOffset={5}>
@@ -153,7 +182,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
             Share
           </Button>
         </header>
-        <CustomScroll flex="1" heightRelativeToParent="100%">
+        <CustomScroll flex="1" heightRelativeToParent="100%" className="p-2">
           {children}
         </CustomScroll>
       </div>

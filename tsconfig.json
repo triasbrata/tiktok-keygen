@@ -9,14 +9,15 @@
     "noEmit": true,
     "incremental": true,
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
       "@/components/*": ["./renderer/components/*"],
+      "@/hooks/*": ["./renderer/components/hooks/*"],
       "@main/*": ["./main/*"],
       "@share/*": ["./share/*"]
     }

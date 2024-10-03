@@ -20,4 +20,7 @@ export enum IpcEventName {
   Os = "os",
   WindowMaximize = "WindowMaximize",
   IsFullScreen = "IsFullScreen",
+  LoginTiktok = "LoginTiktok",
+  SelectCacheBrowser = "SelectCacheBrowser",
+  OpenLink = "OpenLink",
 }

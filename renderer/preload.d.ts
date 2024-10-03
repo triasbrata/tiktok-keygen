@@ -1,5 +1,6 @@
 import { IpcHandler } from "@main/preload";
-import { TitlebarContextApi } from "@main/window/titlebarContext";
+import type { TitlebarContextApi } from "@main/window/titlebarContext";
+import type { TiktokIntegrationContextType } from "@main/tiktok/context";
 
 declare global {
   interface Window {
@@ -7,5 +8,6 @@ declare global {
     electron_window: {
       titlebar: TitlebarContextApi;
     };
+    tiktok_integration: TiktokIntegrationContextType;
   }
 }

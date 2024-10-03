@@ -17,6 +17,7 @@ import {
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import WindowFrameWindowsButtons from "./WindowFrameWindowsButtons";
+import { Toaster } from "../ui/toaster";
 type Props = {
   title?: string;
   borderColor?: string;
@@ -118,6 +119,7 @@ export default function WindowFrame({
       <div className="overflow-auto">
         <AppLayout>{children}</AppLayout>
       </div>
+      <Toaster />
     </div>
   );
 }

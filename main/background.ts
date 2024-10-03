@@ -3,6 +3,8 @@ import { app, ipcMain } from "electron";
 import serve from "electron-serve";
 import { createWindow } from "./helpers";
 import { registerTitlebarIpc } from "./window/titlebarIpc";
+import { registerTiktokIpc } from "./tiktok/ipc";
+import { createTable, db } from "./pg/connection";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -13,6 +15,7 @@ if (isProd) {
 }
 
 (async () => {
+  createTable(db);
   await app.whenReady();
   const preloadPath = path.join(__dirname, "preload.js");
   const mainWindow = createWindow("main", {
@@ -34,10 +37,16 @@ if (isProd) {
     // mainWindow.webContents.openDevTools();
   }
   registerTitlebarIpc(mainWindow);
+  registerTiktokIpc(mainWindow);
 })();
 
-app.on("window-all-closed", () => {
-  app.quit();
+app.on("window-all-closed", async () => {
+  try {
+    await db.close();
+    app.quit();
+  } catch (error) {
+    console.error(error);
+  }
 });
 ipcMain.on("message", async (event, arg) => {
   event.reply("message", `${arg} World!`);

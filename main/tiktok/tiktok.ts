@@ -2,20 +2,20 @@
  * this code converted from this repository
  * https://github.com/Loukious/StreamLabsTikTokStreamKeyGenerator
  */
-import { chromium, Browser, Page, Cookie } from 'playwright-core';
-import axios from 'axios';
-import * as crypto from 'crypto';
-import * as fs from 'fs';
-import * as path from 'path';
-import { URL, URLSearchParams } from 'url';
+import { chromium, Browser, Page, Cookie } from "playwright-core";
+import axios from "axios";
+import * as crypto from "crypto";
+import * as fs from "fs";
+import * as path from "path";
+import { URL, URLSearchParams } from "url";
 
 export class TokenRetriever {
-  CLIENT_KEY = 'awdjaq9ide8ofrtz';
-  REDIRECT_URI = 'https://streamlabs.com/tiktok/auth';
-  STATE = '';
+  CLIENT_KEY = "awdjaq9ide8ofrtz";
+  REDIRECT_URI = "https://streamlabs.com/tiktok/auth";
+  STATE = "";
   SCOPE =
-    'user.info.basic,live.room.info,live.room.manage,user.info.profile,user.info.stats';
-  STREAMLABS_API_URL = 'https://streamlabs.com/api/v5/auth/data';
+    "user.info.basic,live.room.info,live.room.manage,user.info.profile,user.info.stats";
+  STREAMLABS_API_URL = "https://streamlabs.com/api/v5/auth/data";
 
   code_verifier: string;
   code_challenge: string;
@@ -24,7 +24,7 @@ export class TokenRetriever {
   browserPath: string;
   browser: Browser | null = null;
 
-  constructor(browserPath: string, cookies_file = '../cookies.json') {
+  constructor(browserPath: string, cookies_file = "../cookies.json") {
     this.code_verifier = this.generateCodeVerifier();
     this.code_challenge = this.generateCodeChallenge(this.code_verifier);
     this.streamlabs_auth_url = `https://streamlabs.com/m/login?force_verify=1&external=mobile&skip_splash=1&tiktok&code_challenge=${this.code_challenge}`;
@@ -34,40 +34,40 @@ export class TokenRetriever {
 
   // Generate a secure random code verifier
   generateCodeVerifier(): string {
-    return crypto.randomBytes(64).toString('base64url').replace(/=/g, '');
+    return crypto.randomBytes(64).toString("base64url").replace(/=/g, "");
   }
 
   // Generate a code challenge based on the code verifier
   generateCodeChallenge(code_verifier: string): string {
     return crypto
-      .createHash('sha256')
+      .createHash("sha256")
       .update(code_verifier)
-      .digest('base64url')
-      .replace(/=/g, '');
+      .digest("base64url")
+      .replace(/=/g, "");
   }
 
   // Load cookies from the file and apply them to the Playwright page
   async loadCookies(page: Page) {
     if (fs.existsSync(this.cookies_file)) {
       const cookiesRaw: Cookie[] = JSON.parse(
-        fs.readFileSync(this.cookies_file, 'utf8'),
+        fs.readFileSync(this.cookies_file, "utf8")
       );
       await page.context().addCookies(
         cookiesRaw.map(({ sameSite, ...it }) => {
           if (/strict/i.test(sameSite)) {
-            sameSite = 'Strict';
+            sameSite = "Strict";
           }
           if (/lax/i.test(sameSite)) {
-            sameSite = 'Lax';
+            sameSite = "Lax";
           }
-          if (!['Lax', 'Strict'].includes(sameSite)) {
-            sameSite = 'None';
+          if (!["Lax", "Strict"].includes(sameSite)) {
+            sameSite = "None";
           }
           return {
             ...it,
             sameSite: sameSite,
           };
-        }),
+        })
       );
     }
   }
@@ -88,9 +88,9 @@ export class TokenRetriever {
 
       const context = await this.browser.newContext();
       const page = await context.newPage();
-      let auth_code = '';
-      page.route('**/*', async (route, req) => {
-        if (req.url().includes('/passport/open/web/auth/v2/')) {
+      let auth_code = "";
+      page.route("**/*", async (route, req) => {
+        if (req.url().includes("/passport/open/web/auth/v2/")) {
           const response = await page.request.fetch(route.request(), {
             ignoreHTTPSErrors: true,
             failOnStatusCode: true,
@@ -100,7 +100,7 @@ export class TokenRetriever {
           const redirect_url = respBody.redirect_url;
           if (redirect_url) {
             const parsedUrl = new URL(redirect_url);
-            const code = parsedUrl.searchParams.get('code');
+            const code = parsedUrl.searchParams.get("code");
             if (code) {
               auth_code = code;
             }
@@ -110,7 +110,7 @@ export class TokenRetriever {
         return route.continue();
       });
       // Load TikTok authentication page
-      await page.goto('https://www.tiktok.com');
+      await page.goto("https://www.tiktok.com");
 
       // Load cookies if available
       await this.loadCookies(page);
@@ -123,18 +123,18 @@ export class TokenRetriever {
           setTimeout(() => res(), 1000);
         });
         timeout++;
-      } while (auth_code == '' || timeout >= 600);
+      } while (auth_code == "" || timeout >= 600);
       //close browser
       // Wait for the login and consent process to complete
       if (auth_code) {
         // Exchange the authorization code for an access token
         return this.exchangeCodeForToken(auth_code);
       } else {
-        console.error('Authorization code not found.');
+        console.error("Authorization code not found.");
         return null;
       }
     } catch (error) {
-      console.error('Error retrieving token:', error);
+      console.error("Error retrieving token:", error);
       return null;
     } finally {
       if (this.browser) {
@@ -146,17 +146,22 @@ export class TokenRetriever {
   // Function to exchange the authorization code for an access token
   async exchangeCodeForToken(auth_code: string): Promise<string | null> {
     const tokenRequestUrl = `${this.STREAMLABS_API_URL}?code_verifier=${this.code_verifier}&code=${auth_code}`;
-    console.log({ tokenRequestUrl });
+    console.log("token: ", tokenRequestUrl);
     try {
-      const response = await axios.get(tokenRequestUrl);
+      const response = await axios.request({
+        url: tokenRequestUrl,
+        method: "get",
+        maxBodyLength: Infinity,
+        headers: {},
+      });
       if (response.data.success) {
         return response.data.data.oauth_token;
       } else {
-        console.error('Failed to retrieve token.');
+        console.error("Failed to retrieve token.");
         return null;
       }
     } catch (error: any) {
-      console.error('Error exchanging code for token:', error.message);
+      console.error("Error exchanging code for token:", error.message);
       return null;
     }
   }
