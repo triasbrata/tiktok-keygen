@@ -3,8 +3,9 @@ import { app, ipcMain } from "electron";
 import serve from "electron-serve";
 import { createWindow } from "./helpers";
 import { registerTitlebarIpc } from "./window/titlebarIpc";
-import { registerTiktokIpc } from "./tiktok/ipc";
 import { createTable, db } from "./pg/connection";
+import { IpcTiktok } from "./tiktok/ipc";
+import repo from "./pg/repository";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -37,7 +38,7 @@ if (isProd) {
     // mainWindow.webContents.openDevTools();
   }
   registerTitlebarIpc(mainWindow);
-  registerTiktokIpc(mainWindow);
+  await new IpcTiktok(mainWindow, repo).registerTiktokIpc().loadConfig();
 })();
 
 app.on("window-all-closed", async () => {

@@ -11,5 +11,13 @@ export const context = {
   selectCacheBrowser() {
     return ipcRenderer.invoke(IpcEventName.SelectCacheBrowser);
   },
+  getStreamLabKey() {
+    return ipcRenderer.invoke(IpcEventName.GetStreamLabKey);
+  },
+  goLive(
+    formLive: Record<string, any>
+  ): Promise<{ key: string; rmtp: string }> {
+    return ipcRenderer.invoke(IpcEventName.GoTiktokLive, formLive);
+  },
 };
 export type TiktokIntegrationContextType = typeof context;

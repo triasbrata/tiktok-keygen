@@ -1,10 +1,16 @@
 import { PGlite } from "@electric-sql/pglite";
 import { live } from "@electric-sql/pglite/live";
+import { appDataFolder } from "@main/utils/path";
 import { app } from "electron";
-import { readFileSync } from "fs";
-import { join } from "path";
+import { existsSync, mkdirSync, readFileSync } from "fs";
+import path, { dirname, join } from "path";
 
-export const db = new PGlite(join(app.getPath("appData"), "db"), {
+const pathDb = join(appDataFolder, "db");
+const dirName = path.dirname(pathDb);
+if (!existsSync(dirName)) {
+  mkdirSync(dirName);
+}
+export const db = new PGlite(pathDb, {
   extensions: { live },
 });
 

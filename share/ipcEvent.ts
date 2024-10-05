@@ -23,4 +23,6 @@ export enum IpcEventName {
   LoginTiktok = "LoginTiktok",
   SelectCacheBrowser = "SelectCacheBrowser",
   OpenLink = "OpenLink",
+  GetStreamLabKey = "GetStreamLabKey",
+  GoTiktokLive = "GoTiktokLive",
 }

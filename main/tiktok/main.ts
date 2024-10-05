@@ -1,18 +1,18 @@
 // import { install } from "source-map-support";
 // install();
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
-import * as path from 'path';
-import { Stream } from './stream';
-import { TokenRetriever } from './tiktok';
-import { loadConfig, saveConfig } from './config';
-import WebSocket from 'ws';
-import OBSWebSocket from 'obs-websocket-js';
+import { app, BrowserWindow, ipcMain, dialog } from "electron";
+import * as path from "path";
+import { TiktokStreaming } from "./stream";
+import { TokenRetriever } from "./tiktok";
+import { loadConfig, saveConfig } from "./config";
+import WebSocket from "ws";
+import OBSWebSocket from "obs-websocket-js";
 
 let mainWindow: BrowserWindow | null = null;
-let streamInstance: Stream | null = null;
+let streamInstance: TiktokStreaming | null = null;
 
 const createWindow = () => {
-  const preloadPath = path.join(__dirname, 'renders/preload.js');
+  const preloadPath = path.join(__dirname, "renders/preload.js");
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 700,
@@ -23,9 +23,9 @@ const createWindow = () => {
     },
   });
 
-  mainWindow.loadFile(path.join(__dirname, '../', 'main.html'));
+  mainWindow.loadFile(path.join(__dirname, "../", "main.html"));
 
-  mainWindow.on('closed', () => {
+  mainWindow.on("closed", () => {
     mainWindow = null;
   });
 };
@@ -33,44 +33,44 @@ const createWindow = () => {
 app.whenReady().then(() => {
   createWindow();
 
-  app.on('activate', () => {
+  app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
 });
 
 // IPC Handlers
-ipcMain.handle('load-config', async () => {
+ipcMain.handle("load-config", async () => {
   return loadConfig();
 });
 
-ipcMain.handle('save-config', async (event, config) => {
+ipcMain.handle("save-config", async (event, config) => {
   saveConfig(config);
 });
-ipcMain.handle('listen-obs', async (event, config) => {
+ipcMain.handle("listen-obs", async (event, config) => {
   const obs = new OBSWebSocket();
   await obs.connect(`ws://${config.url}`, config.password);
 });
-ipcMain.handle('load-token', async () => {
+ipcMain.handle("load-token", async () => {
   // Implement loadToken logic if needed
   // For simplicity, returning null here
   return null;
 });
 
-ipcMain.handle('fetch-online-token', async () => {
+ipcMain.handle("fetch-online-token", async () => {
   const chromePath =
-    process.platform === 'darwin'
-      ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-      : process.platform === 'win32'
+    process.platform === "darwin"
+      ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+      : process.platform === "win32"
       ? path.resolve(
-          'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+          "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
         )
-      : '';
-  if (chromePath === '') {
-    throw new Error('chrome browser not exists');
+      : "";
+  if (chromePath === "") {
+    throw new Error("chrome browser not exists");
   }
   const retriever = new TokenRetriever(chromePath);
   const token = await retriever.retrieveToken();
@@ -80,13 +80,13 @@ ipcMain.handle('fetch-online-token', async () => {
   return token;
 });
 
-ipcMain.handle('start-stream', async (event, { title, game }) => {
+ipcMain.handle("start-stream", async (event, { title, game }) => {
   if (!streamInstance) {
     const config = loadConfig();
     if (!config || !config.token) {
-      return { success: false, message: 'No token available.' };
+      return { success: false, message: "No token available." };
     }
-    streamInstance = new Stream(config.token);
+    streamInstance = new TiktokStreaming(config.token);
   }
 
   try {
@@ -97,9 +97,9 @@ ipcMain.handle('start-stream', async (event, { title, game }) => {
   }
 });
 
-ipcMain.handle('end-stream', async () => {
+ipcMain.handle("end-stream", async () => {
   if (!streamInstance) {
-    return { success: false, message: 'No active stream.' };
+    return { success: false, message: "No active stream." };
   }
 
   const success = await streamInstance.end();
@@ -107,17 +107,17 @@ ipcMain.handle('end-stream', async () => {
     streamInstance = null;
     return { success: true };
   } else {
-    return { success: false, message: 'Failed to end stream.' };
+    return { success: false, message: "Failed to end stream." };
   }
 });
 
-ipcMain.handle('search-game', async (event, gameName: string) => {
+ipcMain.handle("search-game", async (event, gameName: string) => {
   if (!streamInstance) {
     const config = loadConfig();
     if (!config || !config.token) {
       return [];
     }
-    streamInstance = new Stream(config.token);
+    streamInstance = new TiktokStreaming(config.token);
   }
 
   const categories = await streamInstance.search(gameName);

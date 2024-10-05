@@ -97,6 +97,9 @@ export class TokenRetriever {
       const page = await context.newPage();
       let auth_code = "";
       page.route("**/*", async (route, req) => {
+        // if (req.url().includes("e757e8b3c520a791531153cab993dc27")) {
+        //   console.log({ url: req.url(), body: req.postDataJSON() });
+        // }
         if (req.url().includes("/passport/open/web/auth/v2/")) {
           const response = await page.request.fetch(route.request(), {
             ignoreHTTPSErrors: true,
