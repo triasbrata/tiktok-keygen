@@ -68,19 +68,43 @@ export class IpcTiktok {
     const handleGetStreamLabKey = () => {
       return repo.getStreamLabKey();
     };
+    const handleGoTiktokLive = async (
+      liveForm: Record<string, any>
+    ): Promise<{ key: string; rtmp: string }> => {
+      const { streamId, ...res } = await this.stream.start(
+        liveForm.title,
+        liveForm.topic
+      );
+      await this.repo.saveStreamID(streamId);
+      return res;
+    };
+    const handleStopTiktokLive = async () => {
+      const streamID = await this.repo.getStreamId();
+      if (streamID) {
+        const res = this.stream.end(streamID);
+        await this.repo.deleteStreamID(streamID);
+        return res;
+      }
+      return false;
+    };
+    ipcMain.on(IpcEventName.IsTiktokStreamLive, async (e) => {
+      const [_, remove] = await this.repo.getLiveUpdateTiktokStream((data) => {
+        console.log({ data });
+        e.reply(IpcEventName.IsTiktokStreamLive, data);
+      });
+      ipcMain.handleOnce(IpcEventName.IsTiktokStreamLive, (_, data) => {
+        console.log({ data });
+        if (data === false) {
+          remove();
+        }
+      });
+    });
     ipcMain.handle(IpcEventName.OpenLink, OpenLink);
     ipcMain.handle(IpcEventName.SelectCacheBrowser, handleSelectCacheBrowser);
     ipcMain.handle(IpcEventName.LoginTiktok, handleLoginTiktok);
     ipcMain.handle(IpcEventName.GetStreamLabKey, handleGetStreamLabKey);
-    const handleGoTiktokLive = async (
-      e: Electron.IpcMainInvokeEvent,
-      liveForm: Record<string, any>
-    ): Promise<{ key: string; rtmp: string }> => {
-      const res = await this.stream.start(liveForm.title, liveForm.topic);
-      console.log({ res });
-      return res;
-    };
     ipcMain.handle(IpcEventName.GoTiktokLive, handleGoTiktokLive);
+    ipcMain.handle(IpcEventName.StopTiktokLive, handleStopTiktokLive);
     return this;
   }
 }

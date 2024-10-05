@@ -25,4 +25,6 @@ export enum IpcEventName {
   OpenLink = "OpenLink",
   GetStreamLabKey = "GetStreamLabKey",
   GoTiktokLive = "GoTiktokLive",
+  StopTiktokLive = "StopTiktokLive",
+  IsTiktokStreamLive = "IsTiktokStreamLive",
 }

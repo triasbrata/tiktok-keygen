@@ -18,6 +18,7 @@ export default function TiktokLivePage() {
     setFormValue("topic", key);
   };
   const [liveKey, setLiveKey] = useState({ rtmp: "", key: "" });
+  const [isLive, setLive] = useState(false);
   const [initialOptions, setInitialOptions] = useState([]);
   const handleOnSearch = async (
     search?: string
@@ -56,9 +57,25 @@ export default function TiktokLivePage() {
     };
     doAsync();
   }, []);
+
+  useEffect(() => {
+    const removeListener = tiktokContext().getTiktokStreamID((data: any) => {
+      setLive(data && data.value_data);
+    });
+
+    return () => {
+      removeListener();
+    };
+  }, []);
+
   const handleGoLive = async () => {
     const res = await tiktokContext().goLive(formValue);
     setLiveKey(res);
+  };
+
+  const handleStopLive = async () => {
+    await tiktokContext().stopLive();
+    setLiveKey({ key: "", rtmp: "" });
   };
   return (
     <div className="flex flex-col gap-5">
@@ -98,7 +115,11 @@ export default function TiktokLivePage() {
           />
         </div>
         <div>
-          <Button onClick={handleGoLive}> Go Live</Button>
+          {!isLive ? (
+            <Button onClick={handleGoLive}> Go Live</Button>
+          ) : (
+            <Button onClick={handleStopLive}>Stop Live</Button>
+          )}
         </div>
       </div>
     </div>

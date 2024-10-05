@@ -6,7 +6,6 @@ import axios from "axios";
 
 export class TiktokStreaming {
   private token: string;
-  private streamId: string | null = null;
 
   constructor(token: string) {
     this.token = token;
@@ -37,7 +36,7 @@ export class TiktokStreaming {
   async start(
     title: string,
     category: string
-  ): Promise<{ rtmp: string; key: string }> {
+  ): Promise<{ rtmp: string; key: string; streamId: string }> {
     try {
       const response = await axios.post(
         "https://streamlabs.com/api/v5/slobs/tiktok/stream/start",
@@ -52,23 +51,17 @@ export class TiktokStreaming {
       );
 
       const data = response.data;
-      this.streamId = data.id;
-      return { rtmp: data.rtmp, key: data.key };
+      return { rtmp: data.rtmp, key: data.key, streamId: data.id };
     } catch (error) {
       console.error("Error starting stream:", error);
       throw new Error("Failed to start stream.");
     }
   }
 
-  async end(): Promise<boolean> {
-    if (!this.streamId) {
-      console.error("No active stream to end.");
-      return false;
-    }
-
+  async end(streamId: string): Promise<boolean> {
     try {
       const response = await axios.post(
-        `https://streamlabs.com/api/v5/slobs/tiktok/stream/${this.streamId}/end`,
+        `https://streamlabs.com/api/v5/slobs/tiktok/stream/${streamId}/end`,
         {},
         {
           headers: { Authorization: `Bearer ${this.token}` },
