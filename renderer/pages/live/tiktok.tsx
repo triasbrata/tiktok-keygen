@@ -5,6 +5,17 @@ import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { DialogTrigger } from "@radix-ui/react-dialog";
+import { Radio } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { TextareaWithCounter } from "@/components/composite/text-area-with-counter";
 export default function TiktokLivePage() {
   const [formValue, _setFormValue] = useState({});
   const setFormValue = (key: string, value: string) =>
@@ -36,7 +47,6 @@ export default function TiktokLivePage() {
         }
       );
       const categories = response.data.categories;
-      console.log({ categories });
       if (Array.isArray(categories)) {
         // categories.push({ full_name: "Others", game_mask_id: "" });
         return categories.map((it) => ({
@@ -83,6 +93,7 @@ export default function TiktokLivePage() {
         <div>Topic</div>
         <div>
           <Combobox
+            disable={isLive}
             onSearch={handleOnSearch}
             onSelected={handleOnSelected}
             options={initialOptions}
@@ -90,37 +101,65 @@ export default function TiktokLivePage() {
         </div>
         <div>Title</div>
         <div>
-          <Input onChange={(e) => setFormValue("title", e.target.value)} />
+          <TextareaWithCounter
+            maxLength={250}
+            onChange={(e) => setFormValue("title", e.target.value)}
+            disabled={isLive}
+          />
         </div>
       </div>
       <div className="flex justify-end gap-4 items-end">
-        <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor="rtmp">RTMP</Label>
-          <Input
-            type="rtmp"
-            id="rtmp"
-            placeholder="RTMP"
-            readOnly
-            value={liveKey.rtmp}
-          />
-        </div>
-        <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor="key">Key</Label>
-          <Input
-            type="key"
-            id="key"
-            placeholder="Key"
-            readOnly
-            value={liveKey.key}
-          />
-        </div>
-        <div>
-          {!isLive ? (
-            <Button onClick={handleGoLive}> Go Live</Button>
-          ) : (
-            <Button onClick={handleStopLive}>Stop Live</Button>
-          )}
-        </div>
+        {!isLive ? (
+          <div className="">
+            <Button onClick={handleGoLive} className=" gap-2 flex">
+              <Radio /> <span>Go Live</span>
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div className="">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button>Streaming Settings</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Streaming Settings</DialogTitle>
+                    <DialogDescription>
+                      <div className="flex flex-col gap-3 w-full">
+                        <div className="grid items-center gap-1.5">
+                          <Label htmlFor="rtmp">RTMP</Label>
+                          <Input
+                            type="rtmp"
+                            id="rtmp"
+                            placeholder="RTMP"
+                            className="w-full"
+                            readOnly
+                            value={liveKey.rtmp}
+                          />
+                        </div>
+                        <div className="grid items-center gap-1.5">
+                          <Label htmlFor="key">Key</Label>
+                          <Input
+                            type="key"
+                            id="key"
+                            className="w-full"
+                            placeholder="Key"
+                            readOnly
+                            value={liveKey.key}
+                          />
+                        </div>
+                      </div>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </div>
+            <div className="">
+              <Button onClick={handleStopLive}>Stop Live</Button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

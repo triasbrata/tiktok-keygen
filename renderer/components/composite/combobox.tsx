@@ -26,6 +26,7 @@ type ComboBoxProp<T extends React.ReactNode> = {
   options: Array<{ key: string; render: T; value: string }>;
   onSelected: (key: string, value: string) => void;
   placeHolder?: T;
+  disable: boolean;
   onSearch: (
     key: string
   ) => Promise<Array<{ key: string; value: string; render: T }>>;
@@ -37,6 +38,7 @@ export function Combobox<T extends React.ReactNode>({
   onSelected,
   initialSelected,
   onSearch,
+  disable,
 }: ComboBoxProp<T>) {
   const [options, setOptions] = React.useState(opt ?? []);
   const [open, setOpen] = React.useState(false);
@@ -74,11 +76,14 @@ export function Combobox<T extends React.ReactNode>({
         <Button
           variant="outline"
           role="combobox"
+          disabled={disable}
           aria-expanded={open}
           className="w-full justify-between"
         >
           {renderValue}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          {!disable && (
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
