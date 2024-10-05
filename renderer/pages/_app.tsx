@@ -8,11 +8,13 @@ import dynamic from "next/dynamic";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
+    // <div className="text-muted-foreground">
     <ProviderWrapper>
       <WindowFrame>
         <Component {...pageProps} />
       </WindowFrame>
     </ProviderWrapper>
+    // </div>
   );
 }
 export default dynamic(() => Promise.resolve(MyApp), {

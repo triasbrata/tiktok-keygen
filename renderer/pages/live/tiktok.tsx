@@ -111,7 +111,11 @@ export default function TiktokLivePage() {
       <div className="flex justify-end gap-4 items-end">
         {!isLive ? (
           <div className="">
-            <Button onClick={handleGoLive} className=" gap-2 flex">
+            <Button
+              onClick={handleGoLive}
+              className="gap-2 flex primary "
+              //
+            >
               <Radio /> <span>Go Live</span>
             </Button>
           </div>
