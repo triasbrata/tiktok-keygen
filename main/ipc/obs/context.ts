@@ -1,19 +1,32 @@
 import { IpcEventName } from "@share/ipcEvent";
 import { ipcRenderer } from "electron";
 import { WebsocketPayload } from "./type";
-import type { OBSEventTypes, OBSRequestTypes } from "obs-websocket-js";
+import type {
+  OBSEventTypes,
+  OBSRequestTypes,
+  OBSResponseTypes,
+} from "obs-websocket-js";
 
 export const ObsContext = {
+  selectMultistreamConfig(activeProfile: string) {
+    return ipcRenderer.invoke(
+      IpcEventName.SelectObsConfigMultiStream,
+      activeProfile
+    );
+  },
   connectWebsocket(payload: WebsocketPayload) {
     return ipcRenderer.invoke(IpcEventName.OBSWebsocketStart, payload);
   },
   destroyWebsocket() {
     return ipcRenderer.invoke(IpcEventName.OBSWebsocketStop);
   },
-  websocketEmit<T = OBSRequestTypes, R extends keyof T = keyof T, P = T[R]>(
-    event: R,
-    payload?: P
-  ) {
+  sendCommand<
+    T = OBSRequestTypes,
+    U = OBSResponseTypes,
+    R extends keyof T & keyof U = keyof T & keyof U,
+    P = T[R],
+    Z = U[R]
+  >(event: R, payload?: P): Promise<Z> {
     return ipcRenderer.invoke(
       IpcEventName.OBSWebsocketSendCommand,
       event,

@@ -11,7 +11,7 @@
  * @project : Electron Window
  * @package : Titlebar Context API
  */
-import { TitlebarContextApi } from "./titlebarContext";
+import type { TitlebarContextApi } from "../../../main/window/titlebarContext";
 
 let context = {} as TitlebarContextApi;
 

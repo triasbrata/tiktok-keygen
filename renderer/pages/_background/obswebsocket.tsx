@@ -18,9 +18,7 @@ export default function OBSWebsocket() {
             title: "OBS Websocket connected",
             description: `websocket connect to ${ip}:${port}`,
           });
-          const res = await ObsContext().websocketEmit(
-            "GetCurrentProgramScene"
-          );
+          const res = await ObsContext().sendCommand("GetCurrentProgramScene");
           console.log({ res });
         } catch (error) {
           toast(toastErrorPayload(error.message));

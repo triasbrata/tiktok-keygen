@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 import AppLayout from "../Layouts/AppLayout";
 import { Minus, Moon, Square, Sun, X } from "lucide-react";
-import context from "../../../main/window/titlebarContextApi";
+import context from "@/context/ipc/window";
 import titlebarMenus from "../../../main/window/titlebarMenus";
 import {
   DropdownMenu,

@@ -17,33 +17,37 @@ if (isProd) {
 }
 
 (async () => {
-  createTable(db);
-  await app.whenReady();
-  const preloadPath = path.join(__dirname, "preload.js");
-  const mainWindow = createWindow("main", {
-    width: 1000,
-    height: 600,
-    autoHideMenuBar: true,
-    frame: false,
-    titleBarStyle: "hidden",
-    webPreferences: {
-      webSecurity: false,
-      preload: preloadPath,
-    },
-  });
+  try {
+    createTable(db);
+    await app.whenReady();
+    const preloadPath = path.join(__dirname, "preload.js");
+    const mainWindow = createWindow("main", {
+      width: 1000,
+      height: 600,
+      autoHideMenuBar: true,
+      frame: false,
+      titleBarStyle: "hidden",
+      webPreferences: {
+        webSecurity: false,
+        preload: preloadPath,
+      },
+    });
+    //register ipc here
+    registerTitlebarIpc(mainWindow);
+    console.log("here");
+    registerObsIpc(mainWindow);
+    await new IpcTiktok(mainWindow, repo).registerTiktokIpc().loadConfig();
 
-  if (isProd) {
-    await mainWindow.loadURL("app://./setup/account");
-  } else {
-    const port = process.argv[2];
-    await mainWindow.loadURL(`http://localhost:${port}/setup/account`);
-    // mainWindow.webContents.openDevTools();
+    if (isProd) {
+      await mainWindow.loadURL("app://./setup/account");
+    } else {
+      const port = process.argv[2];
+      await mainWindow.loadURL(`http://localhost:${port}/setup/account`);
+      // mainWindow.webContents.openDevTools();
+    }
+  } catch (error) {
+    console.error(error);
   }
-
-  //register ipc here
-  registerTitlebarIpc(mainWindow);
-  await new IpcTiktok(mainWindow, repo).registerTiktokIpc().loadConfig();
-  registerObsIpc(mainWindow);
 })();
 
 app.on("window-all-closed", async () => {

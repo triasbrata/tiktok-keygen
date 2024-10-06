@@ -2,6 +2,8 @@ import { Form } from "@/components/ui/form";
 import React from "react";
 import FormObsWebsocketSettings from "./form-obs-websocket";
 import FormObsStreamingInject from "./form-obs-streaming-inject";
+import { Button } from "@/components/ui/button";
+import context from "@/context/ipc/window";
 
 export default function ObsSetting() {
   return (
@@ -40,7 +42,17 @@ export default function ObsSetting() {
       </h2>
       <div className="px-3 gap-3 flex flex-col">
         <p className="leading-7">
-          This configuration will make obs auto start when you start tiktok live
+          This configuration will make obs auto start when you start tiktok
+          live. <br /> If you do multistream you must install
+          <Button
+            variant="link"
+            onClick={() =>
+              context().open_url("https://aitum.tv/products/multi")
+            }
+          >
+            Atium Multistream
+          </Button>
+          first!
         </p>
         <FormObsStreamingInject />
       </div>
