@@ -5,6 +5,7 @@ import "../styles/globals.css";
 import ProviderWrapper from "../components/provider/ProviderWrapper";
 import WindowFrame from "@/components/window/WindowFrame";
 import dynamic from "next/dynamic";
+import BackgroundProcess from "./_background/wrapper";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -13,6 +14,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <WindowFrame>
         <Component {...pageProps} />
       </WindowFrame>
+      <BackgroundProcess />
     </ProviderWrapper>
     // </div>
   );

@@ -15,6 +15,9 @@ class DataRepository implements ConfigRepoInterface {
    *
    */
   constructor(private readonly db: PGlite & { live: any }) {}
+  savesecuid(secuid: string) {
+    console.log({ secuid });
+  }
   async getLiveUpdateTiktokStream(cb: (data: any) => void) {
     const ret: LiveChanges<any> = await this.db.live.changes(
       `SELECT * FROM _config where name = $1`,

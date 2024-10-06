@@ -1,7 +1,7 @@
 import { Share } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect } from "react";
 import { CustomScroll } from "@/libs/custom-scrollbar";
 import { useRouter } from "next/router";
 import React from "react";
@@ -9,6 +9,7 @@ import SidebarMenu from "../composite/sidebar-menu";
 
 export default function AppLayout({ children }: PropsWithChildren) {
   const router = useRouter();
+
   return (
     <div className="flex h-fullbody w-full">
       <SidebarMenu />

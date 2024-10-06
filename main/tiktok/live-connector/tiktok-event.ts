@@ -1,0 +1,17 @@
+export enum TiktokEventEnum {
+  MEMBER = "member",
+  CHAT = "chat",
+  GIFT = "gift",
+  ROOM_USER = "roomUser",
+  LIKE = "like",
+  SOCIAL = "social",
+  EMOTE = "emote",
+  ENVELOPE = "envelope",
+  QUESTION_NEW = "questionNew",
+  LINK_MIC_BATTLE = "linkMicBattle",
+  LINK_MIC_ARMIES = "linkMicArmies",
+  LIVE_INTRO = "liveIntro",
+  SUBSCRIBE = "subscribe",
+  FOLLOW = "follow",
+  SHARE = "share",
+}

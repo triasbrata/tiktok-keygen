@@ -3,7 +3,7 @@
 import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import * as path from "path";
 import { TiktokStreaming } from "./stream";
-import { TokenRetriever } from "./tiktok";
+import { BrowserEngine } from "./tiktok";
 import { loadConfig, saveConfig } from "./config";
 import WebSocket from "ws";
 import OBSWebSocket from "obs-websocket-js";
@@ -72,7 +72,7 @@ ipcMain.handle("fetch-online-token", async () => {
   if (chromePath === "") {
     throw new Error("chrome browser not exists");
   }
-  const retriever = new TokenRetriever(chromePath);
+  const retriever = new BrowserEngine(chromePath);
   const token = await retriever.retrieveToken();
   if (token) {
     saveConfig({ token });

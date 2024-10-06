@@ -2,11 +2,15 @@ import { IpcEventName } from "@share/ipcEvent";
 import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import path, { join, resolve } from "path";
-import { TokenRetriever } from "./tiktok";
+import { BrowserEngine } from "./tiktok";
 import repo from "@main/pg/repository";
 import { appDataFolder } from "@main/utils/path";
 import { TiktokStreaming } from "./stream";
 import { ConfigRepoInterface } from "@main/config/interface";
+import { StreamLabAuth } from "./streamlab-auth";
+import { uniqueId } from "lodash";
+import axios from "axios";
+import { registerLiveEventIpc } from "./live-connector/liveIpc";
 export class IpcTiktok {
   private stream: TiktokStreaming;
   /**
@@ -21,7 +25,10 @@ export class IpcTiktok {
     return this;
   }
   registerTiktokIpc() {
-    const handleLoginTiktok = async (e: Electron.IpcMainInvokeEvent) => {
+    const handleLoginTiktok = async (
+      e: Electron.IpcMainInvokeEvent,
+      username: string
+    ) => {
       const browserPath =
         process.platform === "darwin"
           ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -35,13 +42,25 @@ export class IpcTiktok {
       }
 
       const cachePath = await repo.getCachePath();
-      const retriever = new TokenRetriever(browserPath, cachePath);
-      const token = await retriever.retrieveToken();
-      if (token) {
-        this.stream = new TiktokStreaming(token);
-        await repo.saveStreamLabKey(token);
+      const browserEngine = new BrowserEngine(browserPath, cachePath);
+      try {
+        await browserEngine.startEngine();
+        const userData = await browserEngine.openTiktok();
+        const [token] = await Promise.all([
+          // new StreamLabAuth(browserEngine).getToken(),
+          this.saveUserData(e, userData),
+        ]);
+
+        if (token) {
+          this.stream = new TiktokStreaming(token);
+          await repo.saveStreamLabKey(token);
+        }
+      } catch (error) {
+        console.error(error);
+        throw error;
+      } finally {
+        await browserEngine.stopEngine();
       }
-      return;
     };
     const handleSelectCacheBrowser = async (
       e: Electron.IpcMainInvokeEvent
@@ -105,6 +124,30 @@ export class IpcTiktok {
     ipcMain.handle(IpcEventName.GetStreamLabKey, handleGetStreamLabKey);
     ipcMain.handle(IpcEventName.GoTiktokLive, handleGoTiktokLive);
     ipcMain.handle(IpcEventName.StopTiktokLive, handleStopTiktokLive);
+    registerLiveEventIpc();
     return this;
+  }
+  async saveUserData(
+    e: Electron.IpcMainInvokeEvent,
+    userData: { pp: string; secuid: string; uid: string; nicName: string }
+  ): Promise<any> {
+    await Promise.all([
+      this.downloadProfilePicture(e.sender, userData.pp),
+      this.repo.savesecuid(userData.secuid),
+      e.sender.send(IpcEventName.TiktokIdentity, {
+        username: userData.uid,
+        name: userData.nicName,
+      }),
+    ]);
+  }
+  async downloadProfilePicture(
+    sender: Electron.WebContents,
+    url: string
+  ): Promise<any> {
+    const res = await axios.get(url, { responseType: "arraybuffer" });
+    sender.send(
+      IpcEventName.UpdateTiktokProfilePicture,
+      Buffer.from(res.data).toString("base64")
+    );
   }
 }

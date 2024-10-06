@@ -7,6 +7,7 @@ import path, { dirname, join } from "path";
 
 const pathDb = join(appDataFolder, "db");
 const dirName = path.dirname(pathDb);
+console.log({ pathDb });
 if (!existsSync(dirName)) {
   mkdirSync(dirName);
 }

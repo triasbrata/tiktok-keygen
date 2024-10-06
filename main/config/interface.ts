@@ -1,4 +1,5 @@
 export interface ConfigRepoInterface {
+  savesecuid(secuid: string): any;
   getLiveUpdateTiktokStream(cb: (data: any) => void): Promise<any>;
   getStreamId(): Promise<string | undefined>;
   deleteStreamID(streamID: any): Promise<void>;

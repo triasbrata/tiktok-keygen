@@ -10,6 +10,7 @@ module.exports = {
     unoptimized: true,
   },
   webpack: (config) => {
+    // Return the altered config
     return config;
   },
 };

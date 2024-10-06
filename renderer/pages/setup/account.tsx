@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import {
+  AtSignIcon,
   Cookie,
   FileJson2,
   HardDriveDownload,
@@ -16,6 +17,7 @@ import { useToast } from "@/components/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import Image from "next/image";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 
 export default function SetupAccountPage() {
   return (
@@ -53,11 +55,17 @@ function ExtractTiktokAccount() {
       </span>
       2024-10-03-17-23-51.png
       <div className="gap-4 items-center flex flex-row">
-        <Button onClick={handleInstallCookiesEditor}>
+        <Button
+          className={"flex items-center space-x-2"}
+          onClick={handleInstallCookiesEditor}
+        >
           <HardDriveDownload />
           <span>Install Cookies Editor</span>
         </Button>
-        <Button onClick={handleOpenTiktok}>
+        <Button
+          className={"flex items-center space-x-2"}
+          onClick={handleOpenTiktok}
+        >
           <Cookie />
           <span>Extract Cookies</span>
         </Button>
@@ -76,7 +84,10 @@ function ExtractTiktokAccount() {
         <div>
           <span>paste your json file in notepad and save as cookies.json</span>
         </div>
-        <Button onClick={handleSelectCookies}>
+        <Button
+          className={"flex items-center space-x-2"}
+          onClick={handleSelectCookies}
+        >
           <FileJson2 />
           <span>Set Cookies</span>
         </Button>
@@ -85,12 +96,13 @@ function ExtractTiktokAccount() {
   );
 }
 function LoginTiktok() {
+  const [username, setUsername] = useState("");
   const [isLoading, setLoading] = useState(false);
   const { toast } = useToast();
   const handleOnClick = () => {
     setLoading(true);
     tiktokContext()
-      .tiktokLogin()
+      .tiktokLogin(username)
       .catch((e) => {
         console.error(e);
         toast({
@@ -102,10 +114,25 @@ function LoginTiktok() {
       })
       .finally(() => setLoading(false));
   };
+  const handleOnUsernameChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    setUsername(e.target.value);
+  };
   return (
-    <div className="gap-4 items-center flex flex-row">
+    <div className=" w-[2/3] gap-4 items-center flex flex-row">
       <span>Login Tiktok</span>
-      <Button size="sm" onClick={handleOnClick}>
+      <Input
+        startIcon={<AtSignIcon size={16} />}
+        onChange={handleOnUsernameChange}
+        className="w-[2/3]"
+        value={username}
+      />
+      <Button
+        className={"flex items-center space-x-2"}
+        size="sm"
+        onClick={handleOnClick}
+      >
         {isLoading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (

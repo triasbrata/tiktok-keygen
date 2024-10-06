@@ -9,12 +9,33 @@ import {
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { routes } from "../routes";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { tiktokContext } from "../../../main/tiktok/api";
+import { useZustandState } from "@/context/zustand";
 
 export default function SidebarMenu() {
-  const router = useRouter();
-
+  const {
+    name,
+    profilePath,
+    username,
+    updateProfilePicture,
+    updateTiktokIdentity,
+  } = useZustandState((s) => s);
+  useEffect(() => {
+    const unsubPPChange = tiktokContext().updateTiktokProfile((url) => {
+      updateProfilePicture(`data:image/jpeg;base64,${url}`);
+    });
+    const unsubTiktokIdentity = tiktokContext().updateTiktokProfileInfo(
+      (identity) => {
+        updateTiktokIdentity(identity);
+      }
+    );
+    return () => {
+      unsubTiktokIdentity();
+      unsubPPChange();
+    };
+  }, []);
   return (
     <aside className="w-[75px] flex h-fullbody flex-col border-r">
       <div className="border-b p-2 flex h-[60px]">
@@ -34,14 +55,21 @@ export default function SidebarMenu() {
               <Avatar className="ml-1 mx-auto mt-2 w-[32px] h-[32px]">
                 <AvatarImage
                   style={{ filter: "grayscale(100%)" }}
-                  src="https://github.com/shadcn.png"
+                  src={profilePath}
                 />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarFallback>
+                  {name
+                    .split(" ")
+                    .map((it) => it[0])
+                    .slice(0, 2)
+                    .join()
+                    .toUpperCase()}
+                </AvatarFallback>
               </Avatar>
             </Link>
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={5}>
-            <span>@username</span>
+            <span>{username}</span>
             <br />
             <span>Disconnected</span>
           </TooltipContent>

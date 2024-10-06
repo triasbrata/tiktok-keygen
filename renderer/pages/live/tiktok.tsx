@@ -1,5 +1,11 @@
 import { Combobox } from "@/components/composite/combobox";
-import React, { ReactNode, useCallback, useEffect, useState } from "react";
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { tiktokContext } from "../../../main/tiktok/api";
 import axios from "axios";
 import { Input } from "@/components/ui/input";
@@ -67,6 +73,11 @@ export default function TiktokLivePage() {
     };
     doAsync();
   }, []);
+  const speak = useRef(new SpeechSynthesisUtterance());
+  useEffect(() => {
+    window.speechSynthesis.speak(speak.current);
+    return () => {};
+  }, []);
 
   useEffect(() => {
     const removeListener = tiktokContext().getTiktokStreamID((data: any) => {
@@ -113,7 +124,7 @@ export default function TiktokLivePage() {
           <div className="">
             <Button
               onClick={handleGoLive}
-              className="gap-2 flex primary "
+              className="flex items-center space-x-2"
               //
             >
               <Radio /> <span>Go Live</span>

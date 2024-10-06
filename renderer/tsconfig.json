@@ -6,6 +6,12 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "preload.d.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "preload.d.ts",
+    "../main/tiktok/tiktok-event.ts"
+  ],
   "exclude": ["node_modules"]
 }

@@ -26,15 +26,16 @@ if (isProd) {
     frame: false,
     titleBarStyle: "hidden",
     webPreferences: {
+      webSecurity: false,
       preload: preloadPath,
     },
   });
 
   if (isProd) {
-    await mainWindow.loadURL("app://./home");
+    await mainWindow.loadURL("app://./setup/account");
   } else {
     const port = process.argv[2];
-    await mainWindow.loadURL(`http://localhost:${port}/home`);
+    await mainWindow.loadURL(`http://localhost:${port}/setup/account`);
     // mainWindow.webContents.openDevTools();
   }
   registerTitlebarIpc(mainWindow);

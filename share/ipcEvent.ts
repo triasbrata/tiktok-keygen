@@ -27,4 +27,9 @@ export enum IpcEventName {
   GoTiktokLive = "GoTiktokLive",
   StopTiktokLive = "StopTiktokLive",
   IsTiktokStreamLive = "IsTiktokStreamLive",
+  TiktokIdentity = "TiktokIdentity",
+  UpdateTiktokProfilePicture = "UpdateTiktokProfilePicture",
+  TikTokLiveEventStart = "TikTokLiveEventStart",
+  TikTokLiveEvent = "TikTokLiveEvent",
+  TikTokLiveEventStop = "TikTokLiveEventStop",
 }

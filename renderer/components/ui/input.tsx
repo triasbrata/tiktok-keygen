@@ -25,24 +25,24 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ) => {
     const endProps = React.isValidElement(startIcon)
       ? {
-          ...((endIcon.props as {}) ?? {}), // Merge existing props
+          ...((endIcon?.props as {}) ?? {}), // Merge existing props
           className: cn(
-            endIcon.props.className ?? "",
+            endIcon?.props.className ?? "",
             `w-4 h-4 text-foreground-faded`
           ),
         }
       : {};
     const startPropIcon = React.isValidElement(endIcon)
       ? {
-          ...((startIcon.props as {}) ?? {}), // Merge existing props
+          ...((startIcon?.props as {}) ?? {}), // Merge existing props
           className: cn(
-            startIcon.props.className ?? "",
+            startIcon?.props.className ?? "",
             `w-4 h-4 text-foreground-faded`
           ),
         }
       : {};
     return (
-      <div className="w-full relative flex items-center">
+      <div className="relative flex items-center">
         {startIcon && (
           <button
             className="absolute left-3 text-center transition-all disabled:pointer-events-none disabled:opacity-50"
