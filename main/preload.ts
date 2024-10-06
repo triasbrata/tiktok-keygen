@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron";
 import "./window/windowPreload";
 import "./tiktok/preload";
+import "./ipc/obs/preload";
 const handler = {
   send(channel: string, value: unknown) {
     ipcRenderer.send(channel, value);

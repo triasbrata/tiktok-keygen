@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
+import { useZustandState } from "@/context/zustand";
+import { OBSWebsocketContext } from "@/context/slices/obswebsocket";
 const formSchema = z.object({
   ip: z.string().ip({ version: "v4" }),
   port: z.coerce
@@ -24,13 +26,22 @@ const formSchema = z.object({
 type formSchemaType = z.infer<typeof formSchema>;
 
 export default function FormObsWebsocketSettings() {
+  const { ip, password, port, updateWebsocketOBS } =
+    useZustandState<OBSWebsocketContext>((s) => s);
   const form = useForm<formSchemaType>({
     resolver: zodResolver(formSchema),
-    defaultValues: {},
+    defaultValues: {
+      ip,
+      password,
+      port,
+    },
   });
-
   const onSubmit = (data: formSchemaType) => {
-    console.log(data);
+    updateWebsocketOBS({
+      ip: data.ip!,
+      password: data.password,
+      port: data.port!,
+    });
   };
 
   return (

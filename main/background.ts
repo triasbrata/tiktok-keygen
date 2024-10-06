@@ -6,6 +6,7 @@ import { registerTitlebarIpc } from "./window/titlebarIpc";
 import { createTable, db } from "./pg/connection";
 import { IpcTiktok } from "./tiktok/ipc";
 import repo from "./pg/repository";
+import { registerObsIpc } from "./ipc/obs/ipc";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -38,8 +39,11 @@ if (isProd) {
     await mainWindow.loadURL(`http://localhost:${port}/setup/account`);
     // mainWindow.webContents.openDevTools();
   }
+
+  //register ipc here
   registerTitlebarIpc(mainWindow);
   await new IpcTiktok(mainWindow, repo).registerTiktokIpc().loadConfig();
+  registerObsIpc(mainWindow);
 })();
 
 app.on("window-all-closed", async () => {

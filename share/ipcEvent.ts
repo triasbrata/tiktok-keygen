@@ -32,4 +32,9 @@ export enum IpcEventName {
   TikTokLiveEventStart = "TikTokLiveEventStart",
   TikTokLiveEvent = "TikTokLiveEvent",
   TikTokLiveEventStop = "TikTokLiveEventStop",
+  OBSWebsocketStart = "OBSWebsocketStart",
+  OBSWebsocketStop = "OBSWebsocketStop",
+  OBSWebsocketSendCommand = "OBSWebsocketSendCommand",
+  OBSWebsocketReply = "OBSWebsocketReply",
+  OBSWebsocketStartEvent = "OBSWebsocketStartEvent",
 }

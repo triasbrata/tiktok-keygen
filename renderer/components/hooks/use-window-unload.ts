@@ -20,8 +20,13 @@ export const useWindowUnloadEffect = (
 
 export const useWindowUnloadEffectNext = (
   handler: () => () => void,
-  callOnCleanup: boolean
+  callOnCleanup: boolean,
+  dependency?: any[]
 ) => {
+  dependency = [
+    callOnCleanup,
+    ...(Array.isArray(dependency) ? dependency : []),
+  ];
   useEffect(() => {
     const unsub = handler();
     window.addEventListener("beforeunload", unsub);
@@ -31,5 +36,5 @@ export const useWindowUnloadEffectNext = (
 
       window.removeEventListener("beforeunload", unsub);
     };
-  }, [callOnCleanup]);
+  }, dependency);
 };
