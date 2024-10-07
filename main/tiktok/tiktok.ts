@@ -23,17 +23,18 @@ export class BrowserEngine {
     this.cookies_file = path.resolve(__dirname, cookies_file);
     this.browserPath = browserPath; // Browser path is passed in the constructor
   }
-  get page() {
+  async page() {
     const pages = this.context.pages();
     if (pages.length === 0) {
-      throw new Error("no active page");
+      return this.context.newPage();
     }
     return pages[0];
   }
   async openTiktok() {
     const tiktokUserpageUrl = `https://www.tiktok.com/`;
-    await this.page.goto(tiktokUserpageUrl);
-    const el = await this.page.$("#__UNIVERSAL_DATA_FOR_REHYDRATION__");
+    const page = await this.page();
+    await page.goto(tiktokUserpageUrl);
+    const el = await page.$("#__UNIVERSAL_DATA_FOR_REHYDRATION__");
     const content = await el.innerHTML();
     const json = JSON.parse(content);
     console.log({ json });

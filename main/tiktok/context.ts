@@ -1,6 +1,7 @@
 import { IpcEventName } from "@share/ipcEvent";
 import { ipcRenderer } from "electron";
 import { TiktokEventEnum } from "./live-connector/tiktok-event";
+import { LiveForm } from "./type";
 
 export const context = {
   tiktokLogin(username: string) {
@@ -15,9 +16,7 @@ export const context = {
   getStreamLabKey() {
     return ipcRenderer.invoke(IpcEventName.GetStreamLabKey);
   },
-  goLive(
-    formLive: Record<string, any>
-  ): Promise<{ key: string; rtmp: string }> {
+  goLive(formLive: LiveForm): Promise<{ key: string; rtmp: string }> {
     return ipcRenderer.invoke(IpcEventName.GoTiktokLive, formLive);
   },
   stopLive() {

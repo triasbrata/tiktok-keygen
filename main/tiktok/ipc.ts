@@ -1,16 +1,16 @@
 import { IpcEventName } from "@share/ipcEvent";
-import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
+import { BrowserWindow, dialog, ipcMain, shell } from "electron";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import path, { join, resolve } from "path";
+import path, { join } from "path";
 import { BrowserEngine } from "./tiktok";
 import repo from "@main/pg/repository";
 import { appDataFolder } from "@main/utils/path";
 import { TiktokStreaming } from "./stream";
 import { ConfigRepoInterface } from "@main/config/interface";
-import { StreamLabAuth } from "./streamlab-auth";
-import { uniqueId } from "lodash";
 import axios from "axios";
 import { registerLiveEventIpc } from "./live-connector/liveIpc";
+import { LiveForm } from "./type";
+import { StreamLabAuth } from "./streamlab-auth";
 export class IpcTiktok {
   private stream: TiktokStreaming;
   /**
@@ -47,7 +47,7 @@ export class IpcTiktok {
         await browserEngine.startEngine();
         const userData = await browserEngine.openTiktok();
         const [token] = await Promise.all([
-          // new StreamLabAuth(browserEngine).getToken(),
+          new StreamLabAuth(browserEngine).getToken(),
           this.saveUserData(e, userData),
         ]);
 
@@ -88,7 +88,8 @@ export class IpcTiktok {
       return repo.getStreamLabKey();
     };
     const handleGoTiktokLive = async (
-      liveForm: Record<string, any>
+      e: Electron.IpcMainInvokeEvent,
+      liveForm: LiveForm
     ): Promise<{ key: string; rtmp: string }> => {
       const { streamId, ...res } = await this.stream.start(
         liveForm.title,

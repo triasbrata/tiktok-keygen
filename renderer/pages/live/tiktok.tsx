@@ -1,11 +1,5 @@
 import { Combobox } from "@/components/composite/combobox";
-import React, {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { tiktokContext } from "../../../main/tiktok/api";
 import axios from "axios";
 import { Input } from "@/components/ui/input";
@@ -20,10 +14,22 @@ import {
 } from "@/components/ui/dialog";
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import { Radio } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
 import { TextareaWithCounter } from "@/components/composite/text-area-with-counter";
+import { useZustandState } from "@/context/zustand";
+import { ObsConfigInjectContext } from "@/context/slices/obs-config-inject";
+import { useToast } from "@/components/hooks/use-toast";
+import { toastErrorPayload } from "@/libs/utils";
+import { LiveForm } from "../../../main/tiktok/type";
 export default function TiktokLivePage() {
-  const [formValue, _setFormValue] = useState({});
+  const { toast } = useToast();
+  const { configPath, injectConfig, multistream } =
+    useZustandState<ObsConfigInjectContext>((s) => s);
+  const [formValue, _setFormValue] = useState<LiveForm>({
+    multistream,
+    configPath,
+    title: "",
+    topic: "",
+  });
   const setFormValue = (key: string, value: string) =>
     _setFormValue((prev) => {
       return {
@@ -90,8 +96,12 @@ export default function TiktokLivePage() {
   }, []);
 
   const handleGoLive = async () => {
-    const res = await tiktokContext().goLive(formValue);
-    setLiveKey(res);
+    try {
+      const res = await tiktokContext().goLive(formValue);
+      setLiveKey(res);
+    } catch (error) {
+      toast(toastErrorPayload(error.message));
+    }
   };
 
   const handleStopLive = async () => {

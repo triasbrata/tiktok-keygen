@@ -8,11 +8,14 @@ import type {
 } from "obs-websocket-js";
 
 export const ObsContext = {
-  selectMultistreamConfig(activeProfile: string) {
+  loadStreamConfig(activeProfile: string) {
     return ipcRenderer.invoke(
-      IpcEventName.SelectObsConfigMultiStream,
+      IpcEventName.SelectObsStreamConfig,
       activeProfile
     );
+  },
+  loadMultistreamConfig() {
+    return ipcRenderer.invoke(IpcEventName.SelectObsConfigMultiStream);
   },
   connectWebsocket(payload: WebsocketPayload) {
     return ipcRenderer.invoke(IpcEventName.OBSWebsocketStart, payload);

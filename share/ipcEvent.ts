@@ -38,4 +38,5 @@ export enum IpcEventName {
   OBSWebsocketReply = "OBSWebsocketReply",
   OBSWebsocketStartEvent = "OBSWebsocketStartEvent",
   SelectObsConfigMultiStream = "SelectObsConfigMultiStream",
+  SelectObsStreamConfig = "SelectObsStreamConfig",
 }

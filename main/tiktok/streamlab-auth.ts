@@ -16,7 +16,8 @@ export class StreamLabAuth {
   async getToken() {
     try {
       let auth_code = "";
-      this.browserEngine.page.route("**/*", async (route, req) => {
+      const page = await this.browserEngine.page();
+      page.route("**/*", async (route, req) => {
         if (req.url().includes("/passport/open/web/auth/v2/")) {
           const response = await route.fetch();
           const respBody = await response.json();
@@ -33,10 +34,10 @@ export class StreamLabAuth {
         return route.continue();
       });
       // Navigate to Streamlabs OAuth page
-      await this.browserEngine.page.goto(this.streamlabs_auth_url);
+      await page.goto(this.streamlabs_auth_url);
       let timeout = 0;
       do {
-        if (this.browserEngine.page.isClosed()) {
+        if (page.isClosed()) {
           throw new Error("browser already closed");
         }
         await new Promise<void>((res) => {
@@ -45,7 +46,7 @@ export class StreamLabAuth {
         timeout++;
       } while (auth_code == "" || timeout >= 600);
       //close browser
-      await this.browserEngine.page.close();
+      await page.close();
       // Wait for the login and consent process to complete
       if (auth_code) {
         // Exchange the authorization code for an access token
@@ -72,10 +73,16 @@ export class StreamLabAuth {
   // Function to exchange the authorization code for an access token
   async exchangeCodeForToken(auth_code: string): Promise<string | null> {
     const tokenRequestUrl = `${this.STREAMLABS_API_URL}?code_verifier=${this.code_verifier}&code=${auth_code}`;
-    const page = this.browserEngine.page;
+    console.log({ tokenRequestUrl });
+    const page = await this.browserEngine.page();
+    let resJson;
     try {
       const response = await page.goto(tokenRequestUrl);
-
+      await new Promise<void>((res) =>
+        setTimeout(() => {
+          res();
+        }, 100000)
+      );
       const resBody = await response.body();
       const resJson = await new Promise<Record<string, any>>((res, rej) => {
         try {

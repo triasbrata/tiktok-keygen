@@ -3,6 +3,8 @@ import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import OBSWebSocket, { type OBSEventTypes } from "obs-websocket-js";
 import { WebsocketPayload } from "./type";
 import { join } from "path";
+import { obsPath } from "./const";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 export function registerObsIpc(web: BrowserWindow) {
   const registerObsIpcListenerAndDestructive = (obsWebsocket: OBSWebSocket) => {
     const eventNames: Record<keyof OBSEventTypes, boolean> = {
@@ -120,23 +122,35 @@ export function registerObsIpc(web: BrowserWindow) {
     }
     return res;
   };
-  const handleSelectObsConfigMultiStream = async (e, activeProfile: string) => {
+  const handleSelectObsConfigMultiStream = async () => {
     const pathData = join(
-      app.getPath("appData"),
-      "obs-studio/basic/profiles",
-      activeProfile
+      obsPath(),
+      "plugin_config/aitum-multistream/config.json"
     );
-    console.log({ pathData });
-    dialog.showOpenDialogSync({
-      message: "select config",
-      defaultPath: pathData,
-      properties: ["openFile"],
-      filters: [{ extensions: ["json"], name: "json" }],
-    });
+    if (existsSync(pathData)) {
+      return pathData;
+    }
+    return null;
+  };
+  const handleSelectObsStreamConfig = (_, activeProfile: string) => {
+    const pathData = join(
+      obsPath(),
+      "basic/profiles",
+      activeProfile,
+      "service.json"
+    );
+    if (existsSync(pathData)) {
+      return pathData;
+    }
+    return null;
   };
   ipcMain.handle(IpcEventName.OBSWebsocketStart, handleObsWebsocketStart);
   ipcMain.handle(
     IpcEventName.SelectObsConfigMultiStream,
     handleSelectObsConfigMultiStream
+  );
+  ipcMain.handle(
+    IpcEventName.SelectObsStreamConfig,
+    handleSelectObsStreamConfig
   );
 }
