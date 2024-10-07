@@ -18,7 +18,7 @@ if (isProd) {
 
 (async () => {
   try {
-    createTable(db);
+    // createTable(db);
     await app.whenReady();
     const preloadPath = path.join(__dirname, "preload.js");
     const mainWindow = createWindow("main", {

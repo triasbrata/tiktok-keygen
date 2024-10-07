@@ -73,7 +73,7 @@ export default function WindowFrame({
                   <DropdownMenuContent className="min-w-64">
                     {it.items.map((item, id) => {
                       if (item.name === "__") {
-                        return <DropdownMenuSeparator />;
+                        return <DropdownMenuSeparator key={id} />;
                       }
 
                       return (

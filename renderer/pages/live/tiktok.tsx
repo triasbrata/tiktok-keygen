@@ -1,6 +1,12 @@
 import { Combobox } from "@/components/composite/combobox";
-import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { tiktokContext } from "../../context/ipc/tiktok";
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { tiktokContext } from "@/context/ipc/tiktok";
 import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,28 +25,45 @@ import { useZustandState } from "@/context/zustand";
 import { ObsConfigInjectContext } from "@/context/slices/obs-config-inject";
 import { useToast } from "@/components/hooks/use-toast";
 import { toastErrorPayload } from "@/libs/utils";
-import { LiveForm } from "../../../main/tiktok/type";
 import { tiktokLiveContextSlice } from "@/context/slices/tiktok-live";
+import { useForm } from "react-hook-form";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const formTiktokSchema = z.object({
+  title: z.string().min(3),
+  topic: z.string().optional(),
+});
+type formTiktokSchemaType = z.infer<typeof formTiktokSchema>;
 export default function TiktokLivePage() {
   const { toast } = useToast();
-  const { configPath, injectConfig, multistream, isLive, setLive } =
-    useZustandState<ObsConfigInjectContext & tiktokLiveContextSlice>((s) => s);
-  const [formValue, _setFormValue] = useState<LiveForm>({
-    multistream,
+  const {
     configPath,
-    title: "",
-    topic: "",
+    injectConfig,
+    multistream,
+    title,
+    topic,
+    isLive,
+    setLive,
+  } = useZustandState<ObsConfigInjectContext & tiktokLiveContextSlice>(
+    (s) => s
+  );
+  const form = useForm<formTiktokSchemaType>({
+    resolver: zodResolver(formTiktokSchema),
+    defaultValues: {
+      title,
+      topic,
+    },
   });
-  const setFormValue = (key: string, value: string) =>
-    _setFormValue((prev) => {
-      return {
-        ...prev,
-        [key]: value,
-      };
-    });
-  const handleOnSelected = (key: string, value: string): void => {
-    setFormValue("topic", key);
-  };
   const [liveKey, setLiveKey] = useState({ rtmp: "", key: "" });
   const [initialOptions, setInitialOptions] = useState([]);
   const handleOnSearch = async (
@@ -85,109 +108,155 @@ export default function TiktokLivePage() {
     return () => {};
   }, []);
 
-  useEffect(() => {
-    const removeListener = tiktokContext().getTiktokStreamID((data: any) => {
-      setLive(data && data.value_data);
-    });
+  // useEffect(() => {
+  //   const removeListener = tiktokContext().getTiktokStreamID((data: any) => {
+  //     setLive(data && data.value_data);
+  //   });
 
-    return () => {
-      removeListener();
-    };
-  }, []);
+  //   return () => {
+  //     removeListener();
+  //   };
+  // }, []);
 
-  const handleGoLive = async () => {
-    try {
-      const res = await tiktokContext().goLive(formValue);
-      setLive(true);
-      setLiveKey(res);
-    } catch (error) {
-      toast(toastErrorPayload(error.message));
-    }
-  };
-
+  const handleGoLive = useCallback(
+    async (data: formTiktokSchemaType) => {
+      try {
+        const res = await tiktokContext().goLive({
+          topic: data.topic,
+          title: data.title,
+          multistream,
+          configPath,
+        });
+        setLive(true);
+        setLiveKey(res);
+      } catch (error) {
+        toast(toastErrorPayload(error.message));
+      }
+    },
+    [multistream, configPath]
+  );
   const handleStopLive = async () => {
     await tiktokContext().stopLive();
+    setLive(false);
     setLiveKey({ key: "", rtmp: "" });
   };
   return (
     <div className="flex flex-col gap-5">
-      <div className="grid grid-cols-2 gap-4">
-        <div>Topic</div>
-        <div>
-          <Combobox
-            disable={isLive}
-            onSearch={handleOnSearch}
-            onSelected={handleOnSelected}
-            options={initialOptions}
-          />
-        </div>
-        <div>Title</div>
-        <div>
-          <TextareaWithCounter
-            maxLength={250}
-            onChange={(e) => setFormValue("title", e.target.value)}
-            disabled={isLive}
-          />
-        </div>
+      <div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleGoLive)}>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name={"topic"}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Topic</FormLabel>
+                    <FormControl>
+                      <Combobox
+                        disable={isLive || form.formState.isSubmitting}
+                        onSearch={handleOnSearch}
+                        onSelected={field.onChange}
+                        initialSelected={field.value}
+                        options={initialOptions}
+                      />
+                    </FormControl>
+                    {!form.formState.errors.topic ? (
+                      <FormDescription>Topic Live</FormDescription>
+                    ) : (
+                      <FormMessage>
+                        {form.formState.errors.topic?.message}
+                      </FormMessage>
+                    )}
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name={"title"}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <TextareaWithCounter
+                        maxLength={250}
+                        value={field.value}
+                        onChange={field.onChange}
+                        disabled={isLive || form.formState.isSubmitting}
+                      />
+                    </FormControl>
+                    {!form.formState.errors.title ? (
+                      <FormDescription>Title Live</FormDescription>
+                    ) : (
+                      <FormMessage>
+                        {form.formState.errors.title?.message}
+                      </FormMessage>
+                    )}
+                  </FormItem>
+                )}
+              />
+            </div>
+            {!isLive && (
+              <div className="flex justify-end gap-4 items-end">
+                <div className="">
+                  <Button
+                    type="submit"
+                    className="flex items-center space-x-2"
+                    //
+                  >
+                    <Radio /> <span>Go Live</span>
+                  </Button>
+                </div>
+              </div>
+            )}
+          </form>
+        </Form>
       </div>
-      <div className="flex justify-end gap-4 items-end">
-        {!isLive && (
-          <div className="">
-            <Button
-              onClick={handleGoLive}
-              className="flex items-center space-x-2"
-              //
-            >
-              <Radio /> <span>Go Live</span>
-            </Button>
-          </div>
-        )}
-        {isLive && (
-          <>
-            <div className="">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button>Streaming Settings</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Streaming Settings</DialogTitle>
-                    <DialogDescription>
-                      <div className="flex flex-col gap-3 w-full">
-                        <div className="grid items-center gap-1.5">
-                          <Label htmlFor="rtmp">RTMP</Label>
-                          <Input
-                            type="rtmp"
-                            id="rtmp"
-                            placeholder="RTMP"
-                            className="w-full"
-                            readOnly
-                            value={liveKey.rtmp}
-                          />
-                        </div>
-                        <div className="grid items-center gap-1.5">
-                          <Label htmlFor="key">Key</Label>
-                          <Input
-                            type="key"
-                            id="key"
-                            className="w-full"
-                            placeholder="Key"
-                            readOnly
-                            value={liveKey.key}
-                          />
-                        </div>
+      {isLive && (
+        <div className="flex justify-end gap-4 items-end">
+          <div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button type="button">Streaming Settings</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Streaming Settings</DialogTitle>
+                  <DialogDescription>
+                    <div className="flex flex-col gap-3 w-full">
+                      <div className="grid items-center gap-1.5">
+                        <Label htmlFor="rtmp">RTMP</Label>
+                        <Input
+                          type="rtmp"
+                          id="rtmp"
+                          placeholder="RTMP"
+                          className="w-full"
+                          readOnly
+                          value={liveKey.rtmp}
+                        />
                       </div>
-                    </DialogDescription>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
-            </div>
-            <div className="">
-              <Button onClick={handleStopLive}>Stop Live</Button>
-            </div>
-          </>
-        )}
-      </div>
+                      <div className="grid items-center gap-1.5">
+                        <Label htmlFor="key">Key</Label>
+                        <Input
+                          type="key"
+                          id="key"
+                          className="w-full"
+                          placeholder="Key"
+                          readOnly
+                          value={liveKey.key}
+                        />
+                      </div>
+                    </div>
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+          </div>
+          <div>
+            <Button onClick={() => handleStopLive()}>Stop Live</Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

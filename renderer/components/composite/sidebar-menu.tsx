@@ -64,7 +64,7 @@ export default function SidebarMenu() {
         </Tooltip>
         {routes.map((it, i) => {
           return (
-            <Tooltip>
+            <Tooltip key={i}>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
