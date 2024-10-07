@@ -12,6 +12,9 @@ export default function OBSWebsocket() {
   useWindowUnloadEffectNext(
     () => {
       const doSync = async () => {
+        if (ip.length == 0) {
+          return;
+        }
         try {
           await ObsContext().connectWebsocket({ ip, password, port });
           toast({

@@ -1,4 +1,4 @@
-import { LifeBuoy, Settings, SquareUser, Triangle } from "lucide-react";
+import { LifeBuoy, Settings, Triangle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -9,33 +9,16 @@ import {
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { routes } from "../routes";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import { tiktokContext } from "../../../main/tiktok/api";
+import React from "react";
 import { useZustandState } from "@/context/zustand";
+import { tiktokLiveContextSlice } from "@/context/slices/tiktok-live";
+import { UserContextSlice } from "@/context/slices/user";
 
 export default function SidebarMenu() {
-  const {
-    name,
-    profilePath,
-    username,
-    updateProfilePicture,
-    updateTiktokIdentity,
-  } = useZustandState((s) => s);
-  useEffect(() => {
-    const unsubPPChange = tiktokContext().updateTiktokProfile((url) => {
-      updateProfilePicture(`data:image/jpeg;base64,${url}`);
-    });
-    const unsubTiktokIdentity = tiktokContext().updateTiktokProfileInfo(
-      (identity) => {
-        updateTiktokIdentity(identity);
-      }
-    );
-    return () => {
-      unsubTiktokIdentity();
-      unsubPPChange();
-    };
-  }, []);
+  const { name, profilePath, username, isLive } = useZustandState<
+    tiktokLiveContextSlice & UserContextSlice
+  >((s) => s);
+  console.log({ profilePath });
   return (
     <aside className="w-[75px] flex h-fullbody flex-col border-r">
       <div className="border-b p-2 flex h-[60px]">
@@ -69,9 +52,14 @@ export default function SidebarMenu() {
             </Link>
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={5}>
-            <span>{username}</span>
-            <br />
-            <span>Disconnected</span>
+            {username && (
+              <>
+                <span>{username}</span>
+                <br />
+                <span>{isLive ? "Connected" : "Disconnected"}</span>
+              </>
+            )}
+            {!username && <span>No account associated </span>}
           </TooltipContent>
         </Tooltip>
         {routes.map((it, i) => {

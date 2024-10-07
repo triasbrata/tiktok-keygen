@@ -9,7 +9,7 @@ import { TiktokStreaming } from "./stream";
 import { ConfigRepoInterface } from "@main/config/interface";
 import axios from "axios";
 import { registerLiveEventIpc } from "./live-connector/liveIpc";
-import { LiveForm } from "./type";
+import { LiveForm, tiktokLoginResponse } from "./type";
 import { StreamLabAuth } from "./streamlab-auth";
 export class IpcTiktok {
   private stream: TiktokStreaming;
@@ -25,10 +25,7 @@ export class IpcTiktok {
     return this;
   }
   registerTiktokIpc() {
-    const handleLoginTiktok = async (
-      e: Electron.IpcMainInvokeEvent,
-      username: string
-    ) => {
+    const handleLoginTiktok = async (): Promise<tiktokLoginResponse> => {
       const browserPath =
         process.platform === "darwin"
           ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -46,15 +43,24 @@ export class IpcTiktok {
       try {
         await browserEngine.startEngine();
         const userData = await browserEngine.openTiktok();
-        const [token] = await Promise.all([
+        const [token, profilePicture] = await Promise.allSettled([
           new StreamLabAuth(browserEngine).getToken(),
-          this.saveUserData(e, userData),
+          this.downloadProfilePicture(userData.pp),
         ]);
 
-        if (token) {
-          this.stream = new TiktokStreaming(token);
-          await repo.saveStreamLabKey(token);
+        if (token.status == "fulfilled") {
+          this.stream = new TiktokStreaming(token.value);
         }
+        return {
+          token: token.status === "fulfilled" ? token.value : undefined,
+          username: userData.uid,
+          secuid: userData.secuid,
+          name: userData.nicName,
+          profilePicture:
+            profilePicture.status === "fulfilled"
+              ? profilePicture.value
+              : undefined,
+        };
       } catch (error) {
         console.error(error);
         throw error;
@@ -128,27 +134,8 @@ export class IpcTiktok {
     registerLiveEventIpc();
     return this;
   }
-  async saveUserData(
-    e: Electron.IpcMainInvokeEvent,
-    userData: { pp: string; secuid: string; uid: string; nicName: string }
-  ): Promise<any> {
-    await Promise.all([
-      this.downloadProfilePicture(e.sender, userData.pp),
-      this.repo.savesecuid(userData.secuid),
-      e.sender.send(IpcEventName.TiktokIdentity, {
-        username: userData.uid,
-        name: userData.nicName,
-      }),
-    ]);
-  }
-  async downloadProfilePicture(
-    sender: Electron.WebContents,
-    url: string
-  ): Promise<any> {
+  async downloadProfilePicture(url: string): Promise<any> {
     const res = await axios.get(url, { responseType: "arraybuffer" });
-    sender.send(
-      IpcEventName.UpdateTiktokProfilePicture,
-      Buffer.from(res.data).toString("base64")
-    );
+    return Buffer.from(res.data).toString("base64");
   }
 }

@@ -3,24 +3,34 @@ interface userData {
   username: string;
   name: string;
   profilePath: string;
+  tiktokStreamlabToken?: string;
+  secureID?: string;
 }
 interface userAction {
-  updateTiktokIdentity: (param: { username: string; name: string }) => void;
-  updateProfilePicture: (base64: string) => void;
+  setTiktokIdentity(param: { username: string; name: string }): void;
+  setProfilePicture(base64?: string): void;
+  setTiktokStreamlabToken(token?: string): void;
+  setSecureID(v?: string): void;
 }
 
 export type UserContextSlice = userData & userAction;
 export const userSlice: StateCreator<UserContextSlice> = (set) => ({
   name: "",
   username: "",
-  profilePath: "",
-  updateProfilePicture(url) {
-    set({ profilePath: url });
+  profilePath: "/images/tiktok-icon.png",
+  setSecureID(v) {
+    set({ secureID: v });
   },
-  updateTiktokIdentity(param) {
+  setTiktokStreamlabToken(token) {
+    set({ tiktokStreamlabToken: token });
+  },
+  setProfilePicture(url) {
+    set({ profilePath: url ?? "/images/tiktok-icon.png" });
+  },
+  setTiktokIdentity(param) {
     set({
-      username: param.username,
-      name: param.name,
+      username: param.username ?? "",
+      name: param.name ?? "",
     });
   },
 });

@@ -3,7 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@main/*": ["../main/*"]
     }
   },
   "include": [
@@ -11,7 +12,7 @@
     "**/*.ts",
     "**/*.tsx",
     "preload.d.ts",
-    "../main/tiktok/tiktok-event.ts"
+    "../main/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

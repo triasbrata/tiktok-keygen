@@ -1,11 +1,11 @@
 import { IpcEventName } from "@share/ipcEvent";
 import { ipcRenderer } from "electron";
 import { TiktokEventEnum } from "./live-connector/tiktok-event";
-import { LiveForm } from "./type";
+import { LiveForm, tiktokLoginResponse } from "./type";
 
 export const context = {
-  tiktokLogin(username: string) {
-    return ipcRenderer.invoke(IpcEventName.LoginTiktok, username);
+  tiktokLogin(): Promise<tiktokLoginResponse> {
+    return ipcRenderer.invoke(IpcEventName.LoginTiktok);
   },
   openLink(link: string) {
     return ipcRenderer.invoke(IpcEventName.OpenLink, link);
@@ -34,29 +34,6 @@ export const context = {
       ipcRenderer.off(IpcEventName.IsTiktokStreamLive, overideCb);
     };
   },
-  updateTiktokProfile(cb: (url: string) => void) {
-    const cbOverride: (
-      event: Electron.IpcRendererEvent,
-      ...args: any[]
-    ) => void = (_, url) => {
-      cb(url);
-    };
-    ipcRenderer.on(IpcEventName.UpdateTiktokProfilePicture, cbOverride);
-    return () =>
-      ipcRenderer.off(IpcEventName.UpdateTiktokProfilePicture, cbOverride);
-  },
-  updateTiktokProfileInfo(
-    cb: (param: { username: string; name: string }) => void
-  ) {
-    const cbOverride: (
-      event: Electron.IpcRendererEvent,
-      ...args: any[]
-    ) => void = (_, param) => {
-      cb(param);
-    };
-    ipcRenderer.on(IpcEventName.TiktokIdentity, cbOverride);
-    return () => ipcRenderer.off(IpcEventName.TiktokIdentity, cbOverride);
-  },
   //tiktok live connect
   liveEventStart(username: string) {
     return ipcRenderer.invoke(IpcEventName.TikTokLiveEventStart, username);
@@ -73,6 +50,20 @@ export const context = {
     };
     ipcRenderer.on(IpcEventName.TikTokLiveEvent, oCb);
     return () => ipcRenderer.off(IpcEventName.TikTokLiveEvent, oCb);
+  },
+  async onEventDisconnected(cb: () => void) {
+    const handleCb: any = () => {
+      cb();
+    };
+    ipcRenderer.on(IpcEventName.OnTiktokEventDisconnectReply, handleCb);
+    await ipcRenderer.invoke(IpcEventName.OnTiktokEventDisconnect);
+    return () => {
+      ipcRenderer.invoke(IpcEventName.OffTiktokEventDisconnect);
+      ipcRenderer.removeListener(
+        IpcEventName.OnTiktokEventDisconnectReply,
+        handleCb
+      );
+    };
   },
 };
 export type TiktokIntegrationContextType = typeof context;

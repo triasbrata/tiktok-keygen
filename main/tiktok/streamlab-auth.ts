@@ -1,5 +1,6 @@
 import * as crypto from "crypto";
 import { BrowserEngine } from "./tiktok";
+import axios, { isAxiosError } from "axios";
 
 export class StreamLabAuth {
   private readonly STREAMLABS_API_URL =
@@ -77,25 +78,18 @@ export class StreamLabAuth {
     const page = await this.browserEngine.page();
     let resJson;
     try {
-      const response = await page.goto(tokenRequestUrl);
-      await new Promise<void>((res) =>
-        setTimeout(() => {
-          res();
-        }, 100000)
-      );
-      const resBody = await response.body();
-      const resJson = await new Promise<Record<string, any>>((res, rej) => {
+      let retry = 0;
+      let response = await page.goto(tokenRequestUrl);
+      do {
         try {
-          res(JSON.parse(resBody.toString("utf-8")));
-        } catch (error) {
-          rej(
-            new Error(
-              "Failed to retrieve token. with error message: " + error.message
-            )
-          );
+          resJson = await response.json();
+        } catch (error: any) {
+          console.log(error);
         }
-      });
-
+        await new Promise<void>((res) => setTimeout(() => res(), 1000));
+        response = await page.reload();
+        retry++;
+      } while (retry < 10 && !resJson);
       if (resJson.success) {
         return resJson.data.oauth_token;
       } else {

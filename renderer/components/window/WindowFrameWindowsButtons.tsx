@@ -1,6 +1,6 @@
 import { Maximize, Minimize, Minus, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { TitlebarContextApi } from "../../../main/window/titlebarContext";
+import { TitlebarContextApi } from "@main/window/titlebarContext";
 
 export default function WindowFrameWindowsButtons({
   context,

@@ -1,4 +1,4 @@
-import { TiktokIntegrationContextType } from "./context";
+import type { TiktokIntegrationContextType } from "@main/tiktok/context";
 
 export function tiktokContext(): TiktokIntegrationContextType {
   if (window !== undefined) {

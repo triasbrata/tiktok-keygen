@@ -1,6 +1,6 @@
 import { Combobox } from "@/components/composite/combobox";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { tiktokContext } from "../../../main/tiktok/api";
+import { tiktokContext } from "../../context/ipc/tiktok";
 import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,10 +20,11 @@ import { ObsConfigInjectContext } from "@/context/slices/obs-config-inject";
 import { useToast } from "@/components/hooks/use-toast";
 import { toastErrorPayload } from "@/libs/utils";
 import { LiveForm } from "../../../main/tiktok/type";
+import { tiktokLiveContextSlice } from "@/context/slices/tiktok-live";
 export default function TiktokLivePage() {
   const { toast } = useToast();
-  const { configPath, injectConfig, multistream } =
-    useZustandState<ObsConfigInjectContext>((s) => s);
+  const { configPath, injectConfig, multistream, isLive, setLive } =
+    useZustandState<ObsConfigInjectContext & tiktokLiveContextSlice>((s) => s);
   const [formValue, _setFormValue] = useState<LiveForm>({
     multistream,
     configPath,
@@ -41,7 +42,6 @@ export default function TiktokLivePage() {
     setFormValue("topic", key);
   };
   const [liveKey, setLiveKey] = useState({ rtmp: "", key: "" });
-  const [isLive, setLive] = useState(false);
   const [initialOptions, setInitialOptions] = useState([]);
   const handleOnSearch = async (
     search?: string
@@ -98,6 +98,7 @@ export default function TiktokLivePage() {
   const handleGoLive = async () => {
     try {
       const res = await tiktokContext().goLive(formValue);
+      setLive(true);
       setLiveKey(res);
     } catch (error) {
       toast(toastErrorPayload(error.message));
@@ -130,7 +131,7 @@ export default function TiktokLivePage() {
         </div>
       </div>
       <div className="flex justify-end gap-4 items-end">
-        {!isLive ? (
+        {!isLive && (
           <div className="">
             <Button
               onClick={handleGoLive}
@@ -140,7 +141,8 @@ export default function TiktokLivePage() {
               <Radio /> <span>Go Live</span>
             </Button>
           </div>
-        ) : (
+        )}
+        {isLive && (
           <>
             <div className="">
               <Dialog>

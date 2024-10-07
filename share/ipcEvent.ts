@@ -27,8 +27,6 @@ export enum IpcEventName {
   GoTiktokLive = "GoTiktokLive",
   StopTiktokLive = "StopTiktokLive",
   IsTiktokStreamLive = "IsTiktokStreamLive",
-  TiktokIdentity = "TiktokIdentity",
-  UpdateTiktokProfilePicture = "UpdateTiktokProfilePicture",
   TikTokLiveEventStart = "TikTokLiveEventStart",
   TikTokLiveEvent = "TikTokLiveEvent",
   TikTokLiveEventStop = "TikTokLiveEventStop",
@@ -39,4 +37,7 @@ export enum IpcEventName {
   OBSWebsocketStartEvent = "OBSWebsocketStartEvent",
   SelectObsConfigMultiStream = "SelectObsConfigMultiStream",
   SelectObsStreamConfig = "SelectObsStreamConfig",
+  OnTiktokEventDisconnect = "OnTiktokEventDisconnect",
+  OnTiktokEventDisconnectReply = "OnTiktokEventDisconnectReply",
+  OffTiktokEventDisconnect = "OffTiktokEventDisconnect",
 }

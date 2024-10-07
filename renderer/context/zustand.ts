@@ -7,12 +7,14 @@ import {
   ObsConfigInjectContext,
   ObsConfigInjectSlice,
 } from "./slices/obs-config-inject";
+import { tiktokLiveContextSlice, tiktokLiveSlice } from "./slices/tiktok-live";
 
 export const useZustandState = create<
   UserContextSlice &
     SpeakContextSlice &
     OBSWebsocketContext &
-    ObsConfigInjectContext
+    ObsConfigInjectContext &
+    tiktokLiveContextSlice
 >()(
   persist(
     (...a) => ({
@@ -20,6 +22,7 @@ export const useZustandState = create<
       ...speakSettingSlice(...a),
       ...OBSWebsocketSlice(...a),
       ...ObsConfigInjectSlice(...a),
+      ...tiktokLiveSlice(...a),
     }),
     {
       name: "user-storage",

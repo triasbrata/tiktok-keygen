@@ -17,3 +17,10 @@ export interface LiveForm {
   configPath?: string;
   multistream: boolean;
 }
+export interface tiktokLoginResponse {
+  token?: string;
+  name?: string;
+  username?: string;
+  secuid?: string;
+  profilePicture?: string;
+}

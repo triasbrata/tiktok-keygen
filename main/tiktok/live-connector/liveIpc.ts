@@ -1,7 +1,8 @@
 import { IpcEventName } from "@share/ipcEvent";
-import { ipcMain } from "electron";
+import { ipcMain, IpcMainInvokeEvent } from "electron";
 import { WebcastPushConnection } from "tiktok-live-connector";
 import { TiktokEventEnum } from "./tiktok-event";
+
 export function registerLiveEventIpc() {
   let con: WebcastPushConnection;
   const handleTiktokLiveEventStart = async (
@@ -31,4 +32,22 @@ export function registerLiveEventIpc() {
   };
   ipcMain.handle(IpcEventName.TikTokLiveEventStart, handleTiktokLiveEventStart);
   ipcMain.handle(IpcEventName.TikTokLiveEventStop, handleTiktokEventStop);
+  const handleOnTiktokEventDisconnected = (e: IpcMainInvokeEvent) => {
+    if (!con) {
+      return;
+    }
+    const cb = () => {
+      e.sender.send(IpcEventName.OnTiktokEventDisconnectReply);
+    };
+    con.on("disconnected", cb);
+    con.on("streamEnd", cb);
+    ipcMain.handleOnce(IpcEventName.OffTiktokEventDisconnect, () => {
+      con.off("disconnect", cb);
+      con.off("streamEnd", cb);
+    });
+  };
+  ipcMain.handle(
+    IpcEventName.OnTiktokEventDisconnect,
+    handleOnTiktokEventDisconnected
+  );
 }

@@ -88,7 +88,7 @@ export class BrowserEngine {
     try {
       this.browser = await chromium.launch({
         executablePath: this.browserPath, // Use the custom browser path
-        headless: false, // For debugging, you can set this to true for headless
+        headless: true, // For debugging, you can set this to true for headless
       });
       this.context = await this.browser.newContext();
       await this.loadCookies(this.context);

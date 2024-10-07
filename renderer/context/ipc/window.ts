@@ -11,17 +11,10 @@
  * @project : Electron Window
  * @package : Titlebar Context API
  */
-import type { TitlebarContextApi } from "../../../main/window/titlebarContext";
-
-let context = {} as TitlebarContextApi;
-
+import type { TitlebarContextApi } from "@main/window/titlebarContext";
 export default (): TitlebarContextApi => {
   if (!window) {
-    return context;
+    return {} as TitlebarContextApi;
   }
-  if (typeof context.os === "function") {
-    return context;
-  }
-  context = window?.electron_window?.titlebar;
-  return context;
+  return window?.titlebar;
 };
