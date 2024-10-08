@@ -22,7 +22,7 @@ export const userSlice: StateCreator<UserContextSlice> = (set) => ({
     set({ secureID: v });
   },
   setTiktokStreamlabToken(token) {
-    set({ tiktokStreamlabToken: token });
+    set({ tiktokStreamlabToken: token ?? "" });
   },
   setProfilePicture(url) {
     set({ profilePath: url ?? "/images/tiktok-icon.png" });

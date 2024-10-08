@@ -5,6 +5,11 @@ import { WebsocketPayload } from "./type";
 import { join } from "path";
 import { obsPath } from "./const";
 import { existsSync, readFileSync, writeFileSync } from "fs";
+
+let obsClient: OBSWebSocket;
+export function getObs() {
+  return obsClient;
+}
 export function registerObsIpc(web: BrowserWindow) {
   const registerObsIpcListenerAndDestructive = (obsWebsocket: OBSWebSocket) => {
     const eventNames: Record<keyof OBSEventTypes, boolean> = {
@@ -117,6 +122,7 @@ export function registerObsIpc(web: BrowserWindow) {
       `http://${payload.ip}:${payload.port}`,
       payload.password
     );
+    obsClient = obsWebsocket;
     if (res.rpcVersion) {
       registerObsIpcListenerAndDestructive(obsWebsocket);
     }

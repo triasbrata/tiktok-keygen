@@ -35,7 +35,8 @@ export class TiktokStreaming {
 
   async start(
     title: string,
-    category: string
+    category: string,
+    token: string
   ): Promise<{ rtmp: string; key: string; streamId: string }> {
     try {
       const response = await axios.post(
@@ -46,7 +47,7 @@ export class TiktokStreaming {
           category,
         },
         {
-          headers: { Authorization: `Bearer ${this.token}` },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -58,13 +59,13 @@ export class TiktokStreaming {
     }
   }
 
-  async end(streamId: string): Promise<boolean> {
+  async end(streamId: string, token: string): Promise<boolean> {
     try {
       const response = await axios.post(
         `https://streamlabs.com/api/v5/slobs/tiktok/stream/${streamId}/end`,
         {},
         {
-          headers: { Authorization: `Bearer ${this.token}` },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 

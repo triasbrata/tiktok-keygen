@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { tiktokContext } from "@/context/ipc/tiktok";
 import { UserContextSlice } from "@/context/slices/user";
 import { useZustandState } from "@/context/zustand";
+import { toastErrorPayload } from "@/libs/utils";
 import { tiktokLoginResponse } from "@main/tiktok/type";
 import { ToastAction } from "@radix-ui/react-toast";
 import {
@@ -15,7 +16,7 @@ import {
   EyeOff,
   LogOut,
 } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export function LoginTiktok() {
   const {
@@ -42,6 +43,10 @@ export function LoginTiktok() {
         }
         if (res.token) {
           setTiktokStreamlabToken(res.token);
+          toast({
+            title: "Account Connected",
+            description: `logged at tiktok as ${res.name} (${res.username})`,
+          });
         }
         if (res.secuid) {
           setSecureID(res.secuid);
@@ -49,12 +54,7 @@ export function LoginTiktok() {
       })
       .catch((e) => {
         console.error(e);
-        toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: e.message,
-          action: <ToastAction altText="Try again">Try again</ToastAction>,
-        });
+        toast(toastErrorPayload(e.message));
       })
 
       .finally(() => setLoading(false));
@@ -65,6 +65,7 @@ export function LoginTiktok() {
     updateTiktokIdentity({ name: "", username: "" });
     setSecureID();
     setTiktokStreamlabToken();
+    console.log({ tiktokStreamlabToken });
   };
   return (
     <div className="gap-6 flex flex-col">

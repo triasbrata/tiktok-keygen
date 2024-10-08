@@ -1,6 +1,6 @@
 import { IpcEventName } from "@share/ipcEvent";
 import { BrowserWindow, dialog, ipcMain, shell } from "electron";
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, readFile, readFileSync, writeFileSync } from "fs";
 import path, { join } from "path";
 import { BrowserEngine } from "./tiktok";
 import repo from "@main/pg/repository";
@@ -11,6 +11,8 @@ import axios from "axios";
 import { registerLiveEventIpc } from "./live-connector/liveIpc";
 import { LiveForm, tiktokLoginResponse } from "./type";
 import { StreamLabAuth } from "./streamlab-auth";
+import { populateMultistreamConfig, populateStreamConfig } from "./inject";
+import { getObs } from "@main/ipc/obs/ipc";
 export class IpcTiktok {
   private stream: TiktokStreaming;
   /**
@@ -97,17 +99,35 @@ export class IpcTiktok {
       e: Electron.IpcMainInvokeEvent,
       liveForm: LiveForm
     ): Promise<{ key: string; rtmp: string }> => {
-      const { streamId, ...res } = await this.stream.start(
+      const res = await this.stream.start(
         liveForm.title,
-        liveForm.topic
+        liveForm.topic,
+        liveForm.streamlabToken
       );
-      await this.repo.saveStreamID(streamId);
+      try {
+        if (liveForm.configPath) {
+          if (liveForm.multistream) {
+            populateMultistreamConfig(
+              liveForm.configPath,
+              res,
+              liveForm.activeProfile,
+              "TikTok"
+            );
+          } else {
+            await populateStreamConfig(liveForm.configPath, res, getObs());
+          }
+        }
+      } catch (error) {
+        this.stream.end(res.streamId, liveForm.streamlabToken);
+        throw error;
+      }
+      // await this.repo.saveStreamID(streamId);
       return res;
     };
-    const handleStopTiktokLive = async () => {
+    const handleStopTiktokLive = async (_, token) => {
       const streamID = await this.repo.getStreamId();
       if (streamID) {
-        const res = this.stream.end(streamID);
+        const res = this.stream.end(streamID, token);
         await this.repo.deleteStreamID(streamID);
         return res;
       }

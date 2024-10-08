@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 export function toastErrorPayload(message: string, title?: string) {
   return {
-    title: title ?? "woops...",
+    title: title ?? "Uh oh! Something went wrong.",
     description: message,
     variant: "destructive" as "destructive",
   };

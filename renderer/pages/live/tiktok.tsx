@@ -38,6 +38,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { UserContextSlice } from "@/context/slices/user";
+import { ObsContext } from "@/context/ipc/obs";
 
 const formTiktokSchema = z.object({
   title: z.string().min(3),
@@ -54,9 +56,10 @@ export default function TiktokLivePage() {
     topic,
     isLive,
     setLive,
-  } = useZustandState<ObsConfigInjectContext & tiktokLiveContextSlice>(
-    (s) => s
-  );
+    tiktokStreamlabToken,
+  } = useZustandState<
+    ObsConfigInjectContext & tiktokLiveContextSlice & UserContextSlice
+  >((s) => s);
   const form = useForm<formTiktokSchemaType>({
     resolver: zodResolver(formTiktokSchema),
     defaultValues: {
@@ -66,35 +69,37 @@ export default function TiktokLivePage() {
   });
   const [liveKey, setLiveKey] = useState({ rtmp: "", key: "" });
   const [initialOptions, setInitialOptions] = useState([]);
-  const handleOnSearch = async (
-    search?: string
-  ): Promise<Array<{ key: string; render: ReactNode; value: string }>> => {
-    try {
-      const slKey = await tiktokContext().getStreamLabKey();
-      const response = await axios.get<{
-        categories: Array<{ full_name: string; game_mask_id: string }>;
-      }>(
-        `https://streamlabs.com/api/v5/slobs/tiktok/info?category=${encodeURIComponent(
-          search
-        )}`,
-        {
-          headers: { Authorization: `Bearer ${slKey}` },
+  const handleOnSearch = useCallback(
+    async (
+      search?: string
+    ): Promise<Array<{ key: string; render: ReactNode; value: string }>> => {
+      try {
+        const response = await axios.get<{
+          categories: Array<{ full_name: string; game_mask_id: string }>;
+        }>(
+          `https://streamlabs.com/api/v5/slobs/tiktok/info?category=${encodeURIComponent(
+            search
+          )}`,
+          {
+            headers: { Authorization: `Bearer ${tiktokStreamlabToken}` },
+          }
+        );
+        const categories = response.data.categories;
+        if (Array.isArray(categories)) {
+          // categories.push({ full_name: "Others", game_mask_id: "" });
+          return categories.map((it) => ({
+            key: it.game_mask_id,
+            render: it.full_name,
+            value: it.full_name,
+          }));
         }
-      );
-      const categories = response.data.categories;
-      if (Array.isArray(categories)) {
-        // categories.push({ full_name: "Others", game_mask_id: "" });
-        return categories.map((it) => ({
-          key: it.game_mask_id,
-          render: it.full_name,
-          value: it.full_name,
-        }));
+      } catch (error) {
+        console.error("Error fetching game categories:", error);
       }
-    } catch (error) {
-      console.error("Error fetching game categories:", error);
-    }
-    return [];
-  };
+      return [];
+    },
+    [tiktokStreamlabToken]
+  );
   useEffect(() => {
     const doAsync = async () => {
       const res = await handleOnSearch();
@@ -102,30 +107,18 @@ export default function TiktokLivePage() {
     };
     doAsync();
   }, []);
-  const speak = useRef(new SpeechSynthesisUtterance());
-  useEffect(() => {
-    window.speechSynthesis.speak(speak.current);
-    return () => {};
-  }, []);
-
-  // useEffect(() => {
-  //   const removeListener = tiktokContext().getTiktokStreamID((data: any) => {
-  //     setLive(data && data.value_data);
-  //   });
-
-  //   return () => {
-  //     removeListener();
-  //   };
-  // }, []);
 
   const handleGoLive = useCallback(
     async (data: formTiktokSchemaType) => {
       try {
+        const profile = await ObsContext().sendCommand("GetProfileList");
         const res = await tiktokContext().goLive({
           topic: data.topic,
           title: data.title,
           multistream,
           configPath,
+          streamlabToken: tiktokStreamlabToken,
+          activeProfile: profile.currentProfileName,
         });
         setLive(true);
         setLiveKey(res);
@@ -133,7 +126,7 @@ export default function TiktokLivePage() {
         toast(toastErrorPayload(error.message));
       }
     },
-    [multistream, configPath]
+    [multistream, configPath, tiktokStreamlabToken]
   );
   const handleStopLive = async () => {
     await tiktokContext().stopLive();
