@@ -23,6 +23,13 @@ export default function OBSWebsocket() {
           });
           const res = await ObsContext().sendCommand("GetCurrentProgramScene");
           console.log({ res });
+          await ObsContext().sendCommand("CallVendorRequest", {
+            vendorName: "api_example_plugin",
+            requestType: "example_request",
+            requestData: {
+              ping: "wow",
+            },
+          });
         } catch (error) {
           toast(toastErrorPayload(error.message));
         }
