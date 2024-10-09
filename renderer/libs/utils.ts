@@ -11,3 +11,10 @@ export function toastErrorPayload(message: string, title?: string) {
     variant: "destructive" as "destructive",
   };
 }
+export function sleep(second: number = 1) {
+  return new Promise<void>((res) =>
+    setTimeout(() => {
+      res();
+    }, 1000 * second)
+  );
+}

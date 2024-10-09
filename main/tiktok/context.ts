@@ -43,7 +43,7 @@ export const context = {
   liveEventStop() {
     return ipcRenderer.invoke(IpcEventName.TikTokLiveEventStop);
   },
-  liveEvent(cb: (param: { event: TiktokEventEnum; data: any }) => void) {
+  liveEvent<T = TiktokEventEnum>(cb: (param: { event: T; data: any }) => void) {
     const oCb: (event: Electron.IpcRendererEvent, ...args: any[]) => void = (
       _,
       data

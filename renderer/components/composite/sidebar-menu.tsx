@@ -15,10 +15,9 @@ import { tiktokLiveContextSlice } from "@/context/slices/tiktok-live";
 import { UserContextSlice } from "@/context/slices/user";
 
 export default function SidebarMenu() {
-  const { name, profilePath, username, isLive } = useZustandState<
-    tiktokLiveContextSlice & UserContextSlice
+  const { name, profilePath, username, isLiveEventStart } = useZustandState<
+    UserContextSlice & tiktokLiveContextSlice
   >((s) => s);
-  console.log({ profilePath });
   return (
     <aside className="w-[75px] flex h-fullbody flex-col border-r">
       <div className="border-b p-2 flex h-[60px]">
@@ -37,7 +36,7 @@ export default function SidebarMenu() {
             <Link href={"/setup/account"}>
               <Avatar className="ml-1 mx-auto mt-2 w-[32px] h-[32px]">
                 <AvatarImage
-                  style={{ filter: "grayscale(100%)" }}
+                  style={isLiveEventStart ? { filter: "grayscale(100%)" } : {}}
                   src={profilePath}
                 />
                 <AvatarFallback>
@@ -56,7 +55,7 @@ export default function SidebarMenu() {
               <>
                 <span>{username}</span>
                 <br />
-                <span>{isLive ? "Connected" : "Disconnected"}</span>
+                <span>{isLiveEventStart ? "Connected" : "Disconnected"}</span>
               </>
             )}
             {!username && <span>No account associated </span>}

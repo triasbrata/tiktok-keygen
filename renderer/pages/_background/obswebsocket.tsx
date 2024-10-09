@@ -4,11 +4,12 @@ import { ObsContext } from "@/context/ipc/obs";
 import { OBSWebsocketContext } from "@/context/slices/obswebsocket";
 import { useZustandState } from "@/context/zustand";
 import { toastErrorPayload } from "@/libs/utils";
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function OBSWebsocket() {
   const { toast } = useToast();
-  const { ip, password, port } = useZustandState<OBSWebsocketContext>((s) => s);
+  const { ip, password, port, reconnectCount, resetReconnectCount } =
+    useZustandState<OBSWebsocketContext>((s) => s);
   useWindowUnloadEffectNext(
     () => {
       const doSync = async () => {
@@ -41,13 +42,14 @@ export default function OBSWebsocket() {
       };
       doSync();
       return () => {
+        resetReconnectCount();
         ObsContext()
           .destroyWebsocket()
           .catch((e) => console.error(e));
       };
     },
     true,
-    [ip, password, port]
+    [ip, password, port, reconnectCount]
   );
   return <></>;
 }

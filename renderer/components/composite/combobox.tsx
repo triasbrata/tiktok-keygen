@@ -66,14 +66,12 @@ export function Combobox<T extends React.ReactNode>({
     []
   );
   React.useEffect(() => {
-    console.log({ valueQuery });
     debounceSearch(valueQuery);
   }, [valueQuery]);
 
   React.useEffect(() => {
     setOptions(opt);
   }, [opt]);
-  console.log({ renderValue, initialSelected, opt });
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>

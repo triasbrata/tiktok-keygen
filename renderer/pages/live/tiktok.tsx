@@ -24,7 +24,7 @@ import { TextareaWithCounter } from "@/components/composite/text-area-with-count
 import { useZustandState } from "@/context/zustand";
 import { ObsConfigInjectContext } from "@/context/slices/obs-config-inject";
 import { useToast } from "@/components/hooks/use-toast";
-import { toastErrorPayload } from "@/libs/utils";
+import { sleep, toastErrorPayload } from "@/libs/utils";
 import { tiktokLiveContextSlice } from "@/context/slices/tiktok-live";
 import { useForm } from "react-hook-form";
 import z from "zod";
@@ -61,6 +61,7 @@ export default function TiktokLivePage() {
     setTitle,
     setTopic,
     tiktokStreamlabToken,
+    reconnectEvent,
   } = useZustandState<
     ObsConfigInjectContext & tiktokLiveContextSlice & UserContextSlice
   >((s) => s);
@@ -79,7 +80,7 @@ export default function TiktokLivePage() {
       render: ReactNode;
     }>
   >(
-    !topic
+    topicValue.length === 0
       ? []
       : [
           {
@@ -148,6 +149,8 @@ export default function TiktokLivePage() {
         setStreamId(res.streamId);
         setLiveKey(res);
         await ObsContext().sendCommand("StartStream");
+        await sleep(15);
+        reconnectEvent();
       } catch (error) {
         toast(toastErrorPayload(error.message));
       }
@@ -160,11 +163,7 @@ export default function TiktokLivePage() {
     setLiveKey({ key: "", rtmp: "" });
     try {
       await ObsContext().sendCommand("StopStream");
-      await new Promise<void>((res) =>
-        setTimeout(() => {
-          res();
-        }, 1000 * 3)
-      );
+      await sleep(3);
       await ObsContext().sendCommand("SetStreamServiceSettings", {
         streamServiceSettings: {
           bwtest: false,
