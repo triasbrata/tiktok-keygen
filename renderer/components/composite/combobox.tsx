@@ -50,13 +50,13 @@ export function Combobox<T extends React.ReactNode>({
       return selected.render;
     }
     if (initialSelected) {
-      selected = options.find((it) => it.key === initialSelected);
+      selected = options.find((it) => it.value === initialSelected);
       if (selected) {
         return selected.render;
       }
     }
     return placeHolder ?? "Select...";
-  }, [value]);
+  }, [value, options]);
   const debounceSearch = React.useCallback(
     debounce((key: string) => {
       if (key.length > 3) {
@@ -70,6 +70,10 @@ export function Combobox<T extends React.ReactNode>({
     debounceSearch(valueQuery);
   }, [valueQuery]);
 
+  React.useEffect(() => {
+    setOptions(opt);
+  }, [opt]);
+  console.log({ renderValue, initialSelected, opt });
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -87,7 +91,7 @@ export function Combobox<T extends React.ReactNode>({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-        <Command>
+        <Command defaultChecked defaultValue={initialSelected}>
           <CommandInput
             onValueChange={(val) => setValueQuery(val)}
             value={valueQuery}

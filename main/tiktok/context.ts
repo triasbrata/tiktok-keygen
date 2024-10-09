@@ -16,11 +16,13 @@ export const context = {
   getStreamLabKey() {
     return ipcRenderer.invoke(IpcEventName.GetStreamLabKey);
   },
-  goLive(formLive: LiveForm): Promise<{ key: string; rtmp: string }> {
+  goLive(
+    formLive: LiveForm
+  ): Promise<{ key: string; rtmp: string; streamId: string }> {
     return ipcRenderer.invoke(IpcEventName.GoTiktokLive, formLive);
   },
-  stopLive() {
-    return ipcRenderer.invoke(IpcEventName.StopTiktokLive);
+  stopLive(token: string, streamId: string) {
+    return ipcRenderer.invoke(IpcEventName.StopTiktokLive, token, streamId);
   },
   getTiktokStreamID(cb: (data: any) => void) {
     ipcRenderer.send(IpcEventName.IsTiktokStreamLive);

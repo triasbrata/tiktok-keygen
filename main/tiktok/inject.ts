@@ -54,26 +54,22 @@ export function populateMultistreamConfig(
   saveConfig(configPath, configJson);
 }
 export async function populateStreamConfig(
-  configPath: string,
   res: { rtmp: string; key: string },
   obs: OBSWebSocket
 ) {
-  let configJson: ObsConfigStream = loadConfigStream(configPath);
-  if (configJson.type !== "rtmp_custom") {
-    (configJson.type = "rtmp_custom"),
-      (configJson.settings = {
+  try {
+    await obs.call("SetStreamServiceSettings", {
+      streamServiceType: "rtmp_custom",
+      streamServiceSettings: {
         bwtest: false,
-        key: "",
-        server: "",
+        key: res.key,
+        server: res.rtmp,
         use_auth: false,
-      });
+      },
+    });
+  } catch (error) {
+    console.error("err populate", error);
   }
-  configJson.settings.key = res.key;
-  configJson.settings.server = res.rtmp;
-  await obs.call("SetStreamServiceSettings", {
-    streamServiceType: configJson.type,
-    streamServiceSettings: configJson.settings as any,
-  });
 }
 function loadConfigStream(configPath: string) {
   if (!existsSync(configPath)) {

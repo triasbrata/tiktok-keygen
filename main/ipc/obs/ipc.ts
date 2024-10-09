@@ -85,8 +85,14 @@ export function registerObsIpc(web: BrowserWindow) {
     const handleSendCommand: (
       event: Electron.IpcMainEvent,
       ...args: any[]
-    ) => void = (_, event, payload) => {
-      return obsWebsocket.call(event, payload);
+    ) => Promise<any> = async (_, event, payload) => {
+      try {
+        const res = await obsWebsocket.call(event, payload);
+        return res;
+      } catch (error) {
+        console.error({ m: error.message, payload, event });
+        throw error;
+      }
     };
     ipcMain.handleOnce(IpcEventName.OBSWebsocketStop, () => {
       console.log("unload here");
@@ -118,11 +124,13 @@ export function registerObsIpc(web: BrowserWindow) {
     negotiatedRpcVersion?: number;
   }> => {
     const obsWebsocket = new OBSWebSocket();
+    obsClient = obsWebsocket;
+
     const res = await obsWebsocket.connect(
       `http://${payload.ip}:${payload.port}`,
       payload.password
     );
-    obsClient = obsWebsocket;
+
     if (res.rpcVersion) {
       registerObsIpcListenerAndDestructive(obsWebsocket);
     }

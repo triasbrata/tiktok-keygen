@@ -1,15 +1,11 @@
 import { useToast } from "@/components/hooks/use-toast";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ObsContext } from "@/context/ipc/obs";
 import { ObsConfigInjectContext } from "@/context/slices/obs-config-inject";
 import { useZustandState } from "@/context/zustand";
 import { toastErrorPayload } from "@/libs/utils";
-import { File } from "lucide-react";
-import { setConfig } from "next/config";
-import React, { useCallback, useEffect, useState } from "react";
-import { boolean } from "zod";
+import React, { useEffect } from "react";
 
 export default function FormObsStreamingInject() {
   const { toast } = useToast();
@@ -35,6 +31,7 @@ export default function FormObsStreamingInject() {
     try {
       const res = await ObsContext().sendCommand("GetProfileList");
       const configPath = await getConfig(res.currentProfileName, multi);
+      console.log({ configPath });
       if (configPath) {
         setConfigPath(configPath);
         toast({
@@ -76,7 +73,7 @@ export default function FormObsStreamingInject() {
       <div className="flex items-center space-x-2">
         <Switch
           id="multi-stream"
-          disabled={!injectConfig}
+          disabled={true}
           checked={multistream}
           onCheckedChange={handleMultistreamChange}
         />

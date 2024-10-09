@@ -17,19 +17,24 @@ export default function OBSWebsocket() {
         }
         try {
           await ObsContext().connectWebsocket({ ip, password, port });
+          const res = await ObsContext().sendCommand("GetCurrentPreviewScene");
+          // console.log({ res });
           toast({
             title: "OBS Websocket connected",
             description: `websocket connect to ${ip}:${port}`,
           });
-          const res = await ObsContext().sendCommand("GetCurrentProgramScene");
-          console.log({ res });
-          await ObsContext().sendCommand("CallVendorRequest", {
-            vendorName: "api_example_plugin",
-            requestType: "example_request",
-            requestData: {
-              ping: "wow",
-            },
-          });
+
+          // const resVendor = await ObsContext().sendCommand(
+          //   "CallVendorRequest",
+          //   {
+          //     vendorName: "obs-multi-rtmp",
+          //     requestType: "add_new_target",
+          //     requestData: {
+          //       ping: "wow",
+          //     },
+          //   }
+          // );
+          // console.log({ resVendor });
         } catch (error) {
           toast(toastErrorPayload(error.message));
         }

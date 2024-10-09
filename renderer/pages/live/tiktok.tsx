@@ -44,6 +44,7 @@ import { ObsContext } from "@/context/ipc/obs";
 const formTiktokSchema = z.object({
   title: z.string().min(3),
   topic: z.string().optional(),
+  topicValue: z.string().optional(),
 });
 type formTiktokSchemaType = z.infer<typeof formTiktokSchema>;
 export default function TiktokLivePage() {
@@ -53,9 +54,12 @@ export default function TiktokLivePage() {
     injectConfig,
     multistream,
     title,
+    topicValue,
     topic,
-    isLive,
-    setLive,
+    streamId,
+    setStreamId,
+    setTitle,
+    setTopic,
     tiktokStreamlabToken,
   } = useZustandState<
     ObsConfigInjectContext & tiktokLiveContextSlice & UserContextSlice
@@ -68,7 +72,23 @@ export default function TiktokLivePage() {
     },
   });
   const [liveKey, setLiveKey] = useState({ rtmp: "", key: "" });
-  const [initialOptions, setInitialOptions] = useState([]);
+  const [initialOptions, setInitialOptions] = useState<
+    Array<{
+      key: string;
+      value: string;
+      render: ReactNode;
+    }>
+  >(
+    !topic
+      ? []
+      : [
+          {
+            key: topic,
+            value: topicValue,
+            render: topicValue,
+          },
+        ]
+  );
   const handleOnSearch = useCallback(
     async (
       search?: string
@@ -103,36 +123,61 @@ export default function TiktokLivePage() {
   useEffect(() => {
     const doAsync = async () => {
       const res = await handleOnSearch();
-      setInitialOptions(res);
+      const value = [...initialOptions, ...res].filter(
+        (it, i, s) => s.indexOf(it) == i
+      );
+      setInitialOptions(value);
     };
     doAsync();
   }, []);
 
   const handleGoLive = useCallback(
     async (data: formTiktokSchemaType) => {
+      setTopic(data.topic, data.topicValue);
+      setTitle(data.title);
       try {
         const profile = await ObsContext().sendCommand("GetProfileList");
         const res = await tiktokContext().goLive({
           topic: data.topic,
           title: data.title,
           multistream,
-          configPath,
+          injectConfig,
           streamlabToken: tiktokStreamlabToken,
           activeProfile: profile.currentProfileName,
         });
-        setLive(true);
+        setStreamId(res.streamId);
         setLiveKey(res);
+        await ObsContext().sendCommand("StartStream");
       } catch (error) {
         toast(toastErrorPayload(error.message));
       }
     },
-    [multistream, configPath, tiktokStreamlabToken]
+    [multistream, injectConfig, tiktokStreamlabToken]
   );
-  const handleStopLive = async () => {
-    await tiktokContext().stopLive();
-    setLive(false);
+  const handleStopLive = useCallback(async () => {
+    await tiktokContext().stopLive(tiktokStreamlabToken, streamId);
+    setStreamId();
     setLiveKey({ key: "", rtmp: "" });
-  };
+    try {
+      await ObsContext().sendCommand("StopStream");
+      await new Promise<void>((res) =>
+        setTimeout(() => {
+          res();
+        }, 1000 * 3)
+      );
+      await ObsContext().sendCommand("SetStreamServiceSettings", {
+        streamServiceSettings: {
+          bwtest: false,
+          key: "",
+          server: "",
+          use_auth: false,
+        },
+        streamServiceType: "rtmp_custom",
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }, [streamId, tiktokStreamlabToken]);
   return (
     <div className="flex flex-col gap-5">
       <div>
@@ -147,10 +192,16 @@ export default function TiktokLivePage() {
                     <FormLabel>Topic</FormLabel>
                     <FormControl>
                       <Combobox
-                        disable={isLive || form.formState.isSubmitting}
+                        disable={
+                          streamId.length != 0 || form.formState.isSubmitting
+                        }
                         onSearch={handleOnSearch}
-                        onSelected={field.onChange}
-                        initialSelected={field.value}
+                        onSelected={(key, value) => {
+                          console.log({ key, value });
+                          form.setValue("topic", key);
+                          form.setValue("topicValue", value);
+                        }}
+                        initialSelected={topicValue}
                         options={initialOptions}
                       />
                     </FormControl>
@@ -175,7 +226,9 @@ export default function TiktokLivePage() {
                         maxLength={250}
                         value={field.value}
                         onChange={field.onChange}
-                        disabled={isLive || form.formState.isSubmitting}
+                        disabled={
+                          streamId.length != 0 || form.formState.isSubmitting
+                        }
                       />
                     </FormControl>
                     {!form.formState.errors.title ? (
@@ -189,7 +242,7 @@ export default function TiktokLivePage() {
                 )}
               />
             </div>
-            {!isLive && (
+            {streamId.length === 0 && (
               <div className="flex justify-end gap-4 items-end">
                 <div className="">
                   <Button
@@ -205,7 +258,7 @@ export default function TiktokLivePage() {
           </form>
         </Form>
       </div>
-      {isLive && (
+      {streamId.length !== 0 && (
         <div className="flex justify-end gap-4 items-end">
           <div>
             <Dialog>

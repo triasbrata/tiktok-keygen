@@ -57,7 +57,7 @@ export interface LiveForm {
   streamlabToken: string;
   title: string;
   topic: string;
-  configPath?: string;
+  injectConfig: boolean;
   multistream: boolean;
   activeProfile: string;
 }

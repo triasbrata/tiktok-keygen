@@ -10,8 +10,9 @@ import { UserContextSlice } from "@/context/slices/user";
 import { tiktokLiveContextSlice } from "@/context/slices/tiktok-live";
 
 export default function TiktokEvent() {
-  const { username, setLiveEventStarted, isLiveEventStart, setLive } =
-    useZustandState<UserContextSlice & tiktokLiveContextSlice>((s) => s);
+  const { username, setLiveEventStarted, isLiveEventStart } = useZustandState<
+    UserContextSlice & tiktokLiveContextSlice
+  >((s) => s);
   const { toast } = useToast();
   const [counterRetry, setCounterRetry] = useState(0);
   const incrementRetry = () => setCounterRetry((p) => p + 1);
@@ -32,7 +33,6 @@ export default function TiktokEvent() {
       } catch (error) {
         console.error(error.message);
         setLiveEventStarted(false);
-        setLive(false);
         // toast(
         //   toastErrorPayload(
         //     error.message.replace(

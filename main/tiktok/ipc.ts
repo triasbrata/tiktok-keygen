@@ -98,24 +98,26 @@ export class IpcTiktok {
     const handleGoTiktokLive = async (
       e: Electron.IpcMainInvokeEvent,
       liveForm: LiveForm
-    ): Promise<{ key: string; rtmp: string }> => {
+    ): Promise<{ key: string; rtmp: string; streamId: string }> => {
       const res = await this.stream.start(
         liveForm.title,
         liveForm.topic,
         liveForm.streamlabToken
       );
       try {
-        if (liveForm.configPath) {
-          if (liveForm.multistream) {
-            populateMultistreamConfig(
-              liveForm.configPath,
-              res,
-              liveForm.activeProfile,
-              "TikTok"
-            );
-          } else {
-            await populateStreamConfig(liveForm.configPath, res, getObs());
-          }
+        console.log({ liveForm });
+        if (liveForm.injectConfig) {
+          await populateStreamConfig(res, getObs());
+
+          // if (liveForm.multistream) {
+          //   populateMultistreamConfig(
+          //     liveForm.configPath,
+          //     res,
+          //     liveForm.activeProfile,
+          //     "TikTok"
+          //   );
+          // } else {
+          // }
         }
       } catch (error) {
         this.stream.end(res.streamId, liveForm.streamlabToken);
@@ -124,8 +126,7 @@ export class IpcTiktok {
       // await this.repo.saveStreamID(streamId);
       return res;
     };
-    const handleStopTiktokLive = async (_, token) => {
-      const streamID = await this.repo.getStreamId();
+    const handleStopTiktokLive = async (_, token, streamID) => {
       if (streamID) {
         const res = this.stream.end(streamID, token);
         await this.repo.deleteStreamID(streamID);
