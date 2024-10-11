@@ -25,8 +25,9 @@ export default function TiktokEvent() {
       const doSync = async () => {
         try {
           await tiktokContext().liveEventStart(
-            "aerostreet",
-            "7424574317905332997"
+            username
+            // "aerostreet"
+            // "7424574317905332997"
           );
           // unsubDc = await tiktokContext().onEventDisconnected(() => {
           //   setLiveEventStarted(false);
