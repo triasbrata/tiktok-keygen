@@ -7,7 +7,8 @@ export function registerLiveEventIpc() {
   let con: WebcastPushConnection;
   const handleTiktokLiveEventStart = async (
     e: Electron.IpcMainInvokeEvent,
-    username: string
+    username: string,
+    roomID?: string
   ) => {
     console.log(Object.values(TiktokEventEnum));
     con = new WebcastPushConnection(username);
@@ -19,7 +20,7 @@ export function registerLiveEventIpc() {
         });
       });
     });
-    const retcon = await con.connect();
+    const retcon = await con.connect(roomID);
     return retcon;
   };
   const handleTiktokEventStop = () => {
