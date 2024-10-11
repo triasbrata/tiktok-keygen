@@ -18,3 +18,11 @@ export function sleep(second: number = 1) {
     }, 1000 * second)
   );
 }
+export function nameInitial(n: string) {
+  const name = n
+    .split(" ")
+    .map((it) => it?.[0] ?? "")
+    .slice(0, 2);
+  console.log({ name });
+  return name.join("").toUpperCase();
+}

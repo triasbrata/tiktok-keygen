@@ -80,7 +80,7 @@ export default function TiktokLivePage() {
       render: ReactNode;
     }>
   >(
-    topicValue.length === 0
+    (topicValue?.length ?? 0) === 0
       ? []
       : [
           {

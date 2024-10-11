@@ -8,8 +8,14 @@ import React, { useEffect } from "react";
 
 export default function OBSWebsocket() {
   const { toast } = useToast();
-  const { ip, password, port, reconnectCount, resetReconnectCount } =
-    useZustandState<OBSWebsocketContext>((s) => s);
+  const {
+    ip,
+    password,
+    port,
+    reconnectCount,
+    resetReconnectCount,
+    setProgramUUID,
+  } = useZustandState<OBSWebsocketContext>((s) => s);
   useWindowUnloadEffectNext(
     () => {
       const doSync = async () => {
@@ -18,7 +24,10 @@ export default function OBSWebsocket() {
         }
         try {
           await ObsContext().connectWebsocket({ ip, password, port });
-          const res = await ObsContext().sendCommand("GetCurrentPreviewScene");
+          const res = await ObsContext().sendCommand("GetCurrentProgramScene");
+          setProgramUUID(res.currentProgramSceneUuid);
+
+          // const res = await ObsContext().sendCommand("GetCurrentPreviewScene");
           // console.log({ res });
           toast({
             title: "OBS Websocket connected",

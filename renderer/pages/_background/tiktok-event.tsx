@@ -26,7 +26,7 @@ export default function TiktokEvent() {
         try {
           await tiktokContext().liveEventStart(
             "aerostreet",
-            "7424479006500539144"
+            "7424574317905332997"
           );
           // unsubDc = await tiktokContext().onEventDisconnected(() => {
           //   setLiveEventStarted(false);
