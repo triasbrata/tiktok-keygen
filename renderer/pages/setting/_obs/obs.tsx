@@ -1,7 +1,7 @@
 import { Form } from "@/components/ui/form";
 import React from "react";
-import FormObsWebsocketSettings from "./form-obs-websocket";
-import FormObsStreamingInject from "./form-obs-streaming-inject";
+import FormObsWebsocketSettings from "../../../components/pages/settings/obs/form-obs-websocket";
+import FormObsStreamingInject from "../../../components/pages/settings/obs/form-obs-streaming-inject";
 import { Button } from "@/components/ui/button";
 import context from "@/context/ipc/window";
 

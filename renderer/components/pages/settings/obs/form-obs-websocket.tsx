@@ -37,6 +37,7 @@ export default function FormObsWebsocketSettings() {
     },
   });
   const onSubmit = (data: formSchemaType) => {
+    console.log({ data });
     updateWebsocketOBS({
       ip: data.ip!,
       password: data.password,

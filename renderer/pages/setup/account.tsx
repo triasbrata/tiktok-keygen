@@ -1,6 +1,6 @@
 import React from "react";
-import { LoginTiktok } from "./_tiktok/login";
-import { ExtractTiktokAccount } from "./_tiktok/extract-cookies";
+import { LoginTiktok } from "../../components/pages/setup/tiktok/login";
+import { ExtractTiktokAccount } from "../../components/pages/setup/tiktok/extract-cookies";
 
 export default function SetupAccountPage() {
   return (

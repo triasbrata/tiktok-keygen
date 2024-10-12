@@ -12,12 +12,12 @@ export default function ObsPreview() {
   const [img, setImg] = useState(
     "https://images.unsplash.com/photo-1727961673785-689cad093cc7?q=80&w=3271&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
   );
-  const [update, setUpdate] = useState(false);
+  const [playPreview, setPlayPreview] = useState(false);
   useEffect(() => {
     let validPromise = true;
     let timer: any;
     const cbTimer = async () => {
-      if (!update) {
+      if (!playPreview) {
         await sleep(15);
         return cbTimer();
       }
@@ -33,7 +33,7 @@ export default function ObsPreview() {
         console.error(error);
       }
       await sleep(0.6);
-      if (validPromise) {
+      if (validPromise && playPreview) {
         cbTimer();
       }
     };
@@ -47,7 +47,7 @@ export default function ObsPreview() {
       //   unsub();
       // }
     };
-  }, [update]);
+  }, [playPreview]);
   return (
     <Card
       className="grow max-h-[100%] rounded"
@@ -74,8 +74,8 @@ export default function ObsPreview() {
             backgroundColor: "rgba(0, 0, 0, 0.3)",
           }}
         >
-          <Button variant="ghost" onClick={() => setUpdate((p) => !p)}>
-            {update ? <Pause /> : <Play />}
+          <Button variant="ghost" onClick={() => setPlayPreview((p) => !p)}>
+            {playPreview ? <Pause /> : <Play />}
           </Button>
         </div>
       </CardContent>

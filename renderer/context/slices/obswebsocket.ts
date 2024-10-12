@@ -8,7 +8,9 @@ type OBSWebsocketData = {
   programUUID: string;
 };
 type OBSWebsocketAction = {
-  updateWebsocketOBS(data: OBSWebsocketData): void;
+  updateWebsocketOBS(
+    data: Omit<OBSWebsocketData, "reconnectCount" | "programUUID">
+  ): void;
   forceReconnect(): void;
   resetReconnectCount(): void;
   setProgramUUID(v: string): void;
@@ -32,10 +34,22 @@ export const OBSWebsocketSlice: StateCreator<OBSWebsocketContext> = (set) => ({
     }));
   },
   updateWebsocketOBS(data) {
-    set({
-      ip: data.ip,
-      port: data.port,
-      password: data.password,
+    console.log({ data });
+    set((p) => {
+      let inc = 0;
+      if (
+        data.ip == p.ip &&
+        data.port === p.port &&
+        data.password === p.password
+      ) {
+        inc = 1;
+      }
+      return {
+        ip: data.ip,
+        port: data.port,
+        password: data.password,
+        reconnectCount: p.reconnectCount + 1,
+      };
     });
   },
 });

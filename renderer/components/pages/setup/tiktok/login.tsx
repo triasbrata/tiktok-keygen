@@ -6,17 +6,8 @@ import { tiktokContext } from "@/context/ipc/tiktok";
 import { UserContextSlice } from "@/context/slices/user";
 import { useZustandState } from "@/context/zustand";
 import { toastErrorPayload } from "@/libs/utils";
-import { tiktokLoginResponse } from "@main/tiktok/type";
-import { ToastAction } from "@radix-ui/react-toast";
-import {
-  AtSignIcon,
-  Loader2,
-  KeyRound,
-  Eye,
-  EyeOff,
-  LogOut,
-} from "lucide-react";
-import { useRef, useState } from "react";
+import { Loader2, KeyRound, Eye, EyeOff, LogOut } from "lucide-react";
+import { useState } from "react";
 
 export function LoginTiktok() {
   const {
