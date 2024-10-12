@@ -1,3 +1,4 @@
+import { Combobox } from "@/components/composite/combobox";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -12,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 const formSchema = z.object({
@@ -24,6 +25,9 @@ const formSchema = z.object({
 });
 type formSchemaType = z.infer<typeof formSchema>;
 export default function Speak() {
+  const [options, setOptions] = useState<
+    Array<{ key: string; value: string; render: ReactNode }>
+  >([]);
   const form = useForm<formSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -37,6 +41,19 @@ export default function Speak() {
   const onSubmit = (param: any) => {
     console.log({ param });
   };
+  useEffect(() => {
+    if (speechSynthesis) {
+      const voices = speechSynthesis.getVoices();
+      console.log({ voices });
+      const res = voices.map((it) => ({
+        key: it.lang,
+        value: it.name,
+        render: it.name,
+        t: it.localService,
+      }));
+      console.log({ res });
+    }
+  }, []);
   return (
     <div className="div">
       <Form {...form}>
@@ -50,15 +67,13 @@ export default function Speak() {
                   <FormItem>
                     <FormLabel></FormLabel>
                     <FormControl>
-                      {/* <Slider
-                        max={100}
-                        value={[field.value]}
-                        disabled={field.disabled}
-                        step={1}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                        className={`w-full`}
-                      /> */}
+                      <Combobox
+                        options={options}
+                        onSelected={(key, val) => {
+                          form.setValue("lang", key);
+                        }}
+                        onSearch={async () => []}
+                      />
                     </FormControl>
                     {form.formState.errors["lang"] && (
                       <FormMessage>

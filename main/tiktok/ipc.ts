@@ -28,6 +28,7 @@ export class IpcTiktok {
   }
   registerTiktokIpc() {
     const handleLoginTiktok = async (): Promise<tiktokLoginResponse> => {
+      throw new Error("boom");
       const browserPath =
         process.platform === "darwin"
           ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"

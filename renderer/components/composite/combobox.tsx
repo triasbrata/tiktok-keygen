@@ -26,7 +26,7 @@ type ComboBoxProp<T extends React.ReactNode> = {
   options: Array<{ key: string; render: T; value: string }>;
   onSelected: (key: string, value: string) => void;
   placeHolder?: T;
-  disable: boolean;
+  disable?: boolean;
   onSearch: (
     key: string
   ) => Promise<Array<{ key: string; value: string; render: T }>>;

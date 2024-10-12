@@ -8,10 +8,12 @@ import {
   Page,
   Cookie,
   BrowserContext,
+  BrowserType,
 } from "playwright-core";
 import * as fs from "fs";
 import * as path from "path";
-import { URL } from "url";
+// import { URL } from "url";
+// import { isProd } from "@main/config";
 
 export class BrowserEngine {
   private readonly cookies_file: string;
@@ -86,6 +88,13 @@ export class BrowserEngine {
   }
   async startEngine() {
     try {
+      // let chromium: BrowserType;
+      // if (isProd) {
+      //   const PLcorePath = "../modules/playwright-core/index.js";
+      //   chromium = await import(PLcorePath).then((res) => res.chromium);
+      // } else {
+      //   chromium = await import("playwright-core").then((res) => res.chromium);
+      // }
       this.browser = await chromium.launch({
         executablePath: this.browserPath, // Use the custom browser path
         headless: true, // For debugging, you can set this to true for headless

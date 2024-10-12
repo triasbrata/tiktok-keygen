@@ -1,3 +1,8 @@
+// import "source-map-support/register";
+import * as Sentry from "@sentry/electron/main";
+Sentry.init({
+  dsn: "https://34f5da70eb23230897206b55f98ba63f@o4507871057608704.ingest.de.sentry.io/4508112020897872",
+});
 import path from "path";
 import { app, ipcMain } from "electron";
 import serve from "electron-serve";
@@ -7,8 +12,7 @@ import { createTable, db } from "./pg/connection";
 import { IpcTiktok } from "./tiktok/ipc";
 import repo from "./pg/repository";
 import { registerObsIpc } from "./ipc/obs/ipc";
-
-const isProd = process.env.NODE_ENV === "production";
+import { isProd } from "./config";
 
 if (isProd) {
   serve({ directory: "app" });
@@ -43,7 +47,6 @@ if (isProd) {
     } else {
       const port = process.argv[2];
       await mainWindow.loadURL(`http://localhost:${port}/setup/account`);
-      // mainWindow.webContents.openDevTools();
     }
   } catch (error) {
     console.error(error);
