@@ -1,7 +1,7 @@
 import { init, captureException, IPCMode } from "@sentry/electron/main";
 init({
   dsn: "https://34f5da70eb23230897206b55f98ba63f@o4507871057608704.ingest.de.sentry.io/4508112020897872",
-  sampleRate: 0.5,
+  sampleRate: 1,
   ipcMode: IPCMode.Protocol,
 });
 import path from "path";

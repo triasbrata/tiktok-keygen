@@ -9,9 +9,9 @@ files:
     filter:
       - package.json
       - app
-extraFiles:
-  - from: "node_modules/playwright-core"
-    to: "modules/playwright-core"
-    filter:
-      - "**/*" # Include all files from the "config" directory
+# extraFiles:
+#   - from: "node_modules/playwright-core"
+#     to: "resouces/node_modules/playwright-core"
+#     filter:
+#       - "**/*" # Include all files from the "config" directory
 publish: null

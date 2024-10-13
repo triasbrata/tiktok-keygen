@@ -1,22 +1,10 @@
-/** @type {import('next').NextConfig} */
 const { withSentryConfig } = require("@sentry/nextjs");
 
+/** @type {import('next').NextConfig} */
+const nextConfig = {};
+
 module.exports = withSentryConfig(
-  {
-    output: "export",
-    distDir: process.env.NODE_ENV === "production" ? "../app" : ".next",
-    trailingSlash: true,
-    experimental: {
-      externalDir: true,
-    },
-    images: {
-      unoptimized: true,
-    },
-    webpack: (config) => {
-      // Return the altered config
-      return config;
-    },
-  },
+  nextConfig,
   {
     // For all available options, see:
     // https://github.com/getsentry/sentry-webpack-plugin#options
