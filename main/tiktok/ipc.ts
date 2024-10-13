@@ -1,6 +1,6 @@
 import { IpcEventName } from "@share/ipcEvent";
 import { BrowserWindow, dialog, ipcMain, shell } from "electron";
-import { existsSync, readFile, readFileSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import path, { join } from "path";
 import { BrowserEngine } from "./tiktok";
 import repo from "@main/pg/repository";
@@ -11,8 +11,9 @@ import axios from "axios";
 import { registerLiveEventIpc } from "./live-connector/liveIpc";
 import { LiveForm, tiktokLoginResponse } from "./type";
 import { StreamLabAuth } from "./streamlab-auth";
-import { populateMultistreamConfig, populateStreamConfig } from "./inject";
+import { populateStreamConfig } from "./inject";
 import { getObs } from "@main/ipc/obs/ipc";
+import { withSentry } from "@share/sentry-handler";
 export class IpcTiktok {
   private stream: TiktokStreaming;
   /**
@@ -28,7 +29,6 @@ export class IpcTiktok {
   }
   registerTiktokIpc() {
     const handleLoginTiktok = async (): Promise<tiktokLoginResponse> => {
-      throw new Error("boom");
       const browserPath =
         process.platform === "darwin"
           ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -147,12 +147,21 @@ export class IpcTiktok {
         }
       });
     });
-    ipcMain.handle(IpcEventName.OpenLink, OpenLink);
-    ipcMain.handle(IpcEventName.SelectCacheBrowser, handleSelectCacheBrowser);
-    ipcMain.handle(IpcEventName.LoginTiktok, handleLoginTiktok);
-    ipcMain.handle(IpcEventName.GetStreamLabKey, handleGetStreamLabKey);
-    ipcMain.handle(IpcEventName.GoTiktokLive, handleGoTiktokLive);
-    ipcMain.handle(IpcEventName.StopTiktokLive, handleStopTiktokLive);
+    ipcMain.handle(IpcEventName.OpenLink, withSentry(OpenLink));
+    ipcMain.handle(
+      IpcEventName.SelectCacheBrowser,
+      withSentry(handleSelectCacheBrowser)
+    );
+    ipcMain.handle(IpcEventName.LoginTiktok, withSentry(handleLoginTiktok));
+    ipcMain.handle(
+      IpcEventName.GetStreamLabKey,
+      withSentry(handleGetStreamLabKey)
+    );
+    ipcMain.handle(IpcEventName.GoTiktokLive, withSentry(handleGoTiktokLive));
+    ipcMain.handle(
+      IpcEventName.StopTiktokLive,
+      withSentry(handleStopTiktokLive)
+    );
     registerLiveEventIpc();
     return this;
   }

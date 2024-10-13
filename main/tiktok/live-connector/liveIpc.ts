@@ -2,6 +2,7 @@ import { IpcEventName } from "@share/ipcEvent";
 import { ipcMain, IpcMainInvokeEvent } from "electron";
 import { WebcastPushConnection } from "tiktok-live-connector";
 import { TiktokEventEnum } from "./tiktok-event";
+import { withSentry } from "@share/sentry-handler";
 
 export function registerLiveEventIpc() {
   let con: WebcastPushConnection;
@@ -31,8 +32,6 @@ export function registerLiveEventIpc() {
       con.disconnect();
     }
   };
-  ipcMain.handle(IpcEventName.TikTokLiveEventStart, handleTiktokLiveEventStart);
-  ipcMain.handle(IpcEventName.TikTokLiveEventStop, handleTiktokEventStop);
   const handleOnTiktokEventDisconnected = (e: IpcMainInvokeEvent) => {
     if (!con) {
       return;
@@ -48,7 +47,15 @@ export function registerLiveEventIpc() {
     });
   };
   ipcMain.handle(
+    IpcEventName.TikTokLiveEventStart,
+    withSentry(handleTiktokLiveEventStart)
+  );
+  ipcMain.handle(
+    IpcEventName.TikTokLiveEventStop,
+    withSentry(handleTiktokEventStop)
+  );
+  ipcMain.handle(
     IpcEventName.OnTiktokEventDisconnect,
-    handleOnTiktokEventDisconnected
+    withSentry(handleOnTiktokEventDisconnected)
   );
 }

@@ -5,6 +5,7 @@ import { WebsocketPayload } from "./type";
 import { join } from "path";
 import { obsPath } from "./const";
 import { existsSync, readFileSync, writeFileSync } from "fs";
+import { withSentry } from "@share/sentry-handler";
 
 let obsClient: OBSWebSocket;
 export function getObs() {
@@ -158,13 +159,16 @@ export function registerObsIpc(web: BrowserWindow) {
     }
     return null;
   };
-  ipcMain.handle(IpcEventName.OBSWebsocketStart, handleObsWebsocketStart);
+  ipcMain.handle(
+    IpcEventName.OBSWebsocketStart,
+    withSentry(handleObsWebsocketStart)
+  );
   ipcMain.handle(
     IpcEventName.SelectObsConfigMultiStream,
-    handleSelectObsConfigMultiStream
+    withSentry(handleSelectObsConfigMultiStream)
   );
   ipcMain.handle(
     IpcEventName.SelectObsStreamConfig,
-    handleSelectObsStreamConfig
+    withSentry(handleSelectObsStreamConfig)
   );
 }

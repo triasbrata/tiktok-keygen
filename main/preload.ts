@@ -1,3 +1,4 @@
+import "@sentry/electron/preload";
 import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron";
 import "./window/windowPreload";
 import "./tiktok/preload";

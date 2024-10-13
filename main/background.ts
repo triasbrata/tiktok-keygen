@@ -1,7 +1,8 @@
-// import "source-map-support/register";
-import * as Sentry from "@sentry/electron/main";
-Sentry.init({
+import { init, captureException, IPCMode } from "@sentry/electron/main";
+init({
   dsn: "https://34f5da70eb23230897206b55f98ba63f@o4507871057608704.ingest.de.sentry.io/4508112020897872",
+  sampleRate: 0.5,
+  ipcMode: IPCMode.Protocol,
 });
 import path from "path";
 import { app, ipcMain } from "electron";
@@ -13,14 +14,23 @@ import { IpcTiktok } from "./tiktok/ipc";
 import repo from "./pg/repository";
 import { registerObsIpc } from "./ipc/obs/ipc";
 import { isProd } from "./config";
-
+import { electron } from "process";
 if (isProd) {
   serve({ directory: "app" });
 } else {
   app.setPath("userData", `${app.getPath("userData")} (development)`);
 }
 
-(async () => {
+async function main() {
+  app.on("window-all-closed", async () => {
+    try {
+      await db.close();
+      app.quit();
+    } catch (error) {
+      console.error(error);
+      captureException(error);
+    }
+  });
   try {
     // createTable(db);
     await app.whenReady();
@@ -49,18 +59,13 @@ if (isProd) {
       await mainWindow.loadURL(`http://localhost:${port}/setup/account`);
     }
   } catch (error) {
-    console.error(error);
+    captureException(error);
   }
-})();
-
-app.on("window-all-closed", async () => {
-  try {
-    await db.close();
-    app.quit();
-  } catch (error) {
-    console.error(error);
-  }
+}
+main();
+process.on("unhandledRejection", (r) => {
+  console.error(r, "unhandledRejection");
 });
-ipcMain.on("message", async (event, arg) => {
-  event.reply("message", `${arg} World!`);
+process.on("uncaughtException", (r) => {
+  console.error(r, "uncaughtException");
 });

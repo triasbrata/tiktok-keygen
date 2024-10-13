@@ -1,7 +1,6 @@
 const { resolve } = require("path");
 const { inspect } = require("util");
-
-const webpack = require("webpack");
+const { sentryWebpackPlugin } = require("@sentry/webpack-plugin");
 module.exports = {
   // specify an alternate main src directory, defaults to 'main'
   mainSrcDir: "main",
@@ -70,6 +69,15 @@ module.exports = {
           },
         ],
       },
+      plugins: [
+        ...config.plugins,
+        // Put the Sentry Webpack plugin after all other plugins
+        sentryWebpackPlugin({
+          authToken: process.env.SENTRY_AUTH_TOKEN,
+          org: "tbm-vn",
+          project: "electron",
+        }),
+      ],
     };
     console.log(inspect(o, false, 5));
     return o;
