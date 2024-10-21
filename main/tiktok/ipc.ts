@@ -1,5 +1,5 @@
 import { IpcEventName } from "@share/ipcEvent";
-import { BrowserWindow, dialog, ipcMain, shell } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, session, shell } from "electron";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import path, { join } from "path";
 import { BrowserEngine } from "./tiktok";
@@ -14,6 +14,8 @@ import { StreamLabAuth } from "./streamlab-auth";
 import { populateStreamConfig } from "./inject";
 import { getObs } from "@main/ipc/obs/ipc";
 import { withSentry } from "@share/sentry-handler";
+import { devtools } from "zustand/middleware";
+import { Proxy } from "http-mitm-proxy";
 export class IpcTiktok {
   private stream: TiktokStreaming;
   /**
@@ -70,6 +72,40 @@ export class IpcTiktok {
       } finally {
         await browserEngine.stopEngine();
       }
+    };
+    const handleLoginTiktokNative = async () => {
+      let moved = false;
+
+      const win = new BrowserWindow({
+        minWidth: 800,
+        minHeight: 600,
+        // show: false,
+        webPreferences: {
+          // session: customSession,
+          devTools: true,
+        },
+      });
+      // customSession.webRequest.
+      const wb = win.webContents;
+      const streamLabAuth = new StreamLabAuth(win);
+      const waitUntilLogin = async () => {
+        await new Promise<void>((res) => {
+          wb.on("did-stop-loading", () => {
+            const url = wb.getURL();
+            const cond = url.includes("tiktok.com/foryou") && !moved;
+            if (cond) {
+              moved = true;
+              res();
+            }
+          });
+        });
+        await streamLabAuth.getToken();
+      };
+
+      await Promise.all([
+        waitUntilLogin(),
+        win.loadURL("https://tiktok.com/login"),
+      ]);
     };
     const handleSelectCacheBrowser = async (
       e: Electron.IpcMainInvokeEvent
@@ -152,7 +188,10 @@ export class IpcTiktok {
       IpcEventName.SelectCacheBrowser,
       withSentry(handleSelectCacheBrowser)
     );
-    ipcMain.handle(IpcEventName.LoginTiktok, withSentry(handleLoginTiktok));
+    ipcMain.handle(
+      IpcEventName.LoginTiktok,
+      withSentry(handleLoginTiktokNative)
+    );
     ipcMain.handle(
       IpcEventName.GetStreamLabKey,
       withSentry(handleGetStreamLabKey)

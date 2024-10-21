@@ -1,9 +1,13 @@
 import { init, captureException, IPCMode } from "@sentry/electron/main";
-init({
-  dsn: "https://34f5da70eb23230897206b55f98ba63f@o4507871057608704.ingest.de.sentry.io/4508112020897872",
-  sampleRate: 1,
-  ipcMode: IPCMode.Protocol,
-});
+import { isProd } from "./config";
+
+if (isProd) {
+  init({
+    dsn: "https://34f5da70eb23230897206b55f98ba63f@o4507871057608704.ingest.de.sentry.io/4508112020897872",
+    sampleRate: 1,
+    ipcMode: IPCMode.Protocol,
+  });
+}
 import path from "path";
 import { app, ipcMain } from "electron";
 import serve from "electron-serve";
@@ -13,7 +17,6 @@ import { createTable, db } from "./pg/connection";
 import { IpcTiktok } from "./tiktok/ipc";
 import repo from "./pg/repository";
 import { registerObsIpc } from "./ipc/obs/ipc";
-import { isProd } from "./config";
 import { electron } from "process";
 if (isProd) {
   serve({ directory: "app" });
@@ -57,6 +60,7 @@ async function main() {
     } else {
       const port = process.argv[2];
       await mainWindow.loadURL(`http://localhost:${port}/setup/account`);
+      // await mainWindow.loadURL("https://tiktok.com/login");
     }
   } catch (error) {
     captureException(error);

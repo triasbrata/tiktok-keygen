@@ -9,8 +9,12 @@ module.exports = {
 
   // main process' webpack config
   webpack: (config, env) => {
-    return {
+    config = {
       ...config,
+      entry: {
+        ...config.entry,
+        // outsider: resolve("./main/outsider.ts"),
+      },
       externals: [...config.externals],
       ignoreWarnings: [{ module: /@opentelemetry\/instrumentation/ }],
       module: {
@@ -72,12 +76,18 @@ module.exports = {
       plugins: [
         ...config.plugins,
         // Put the Sentry Webpack plugin after all other plugins
+      ],
+    };
+    if (config.mode !== "development") {
+      config.plugins.push(
         sentryWebpackPlugin({
           authToken: process.env.SENTRY_AUTH_TOKEN,
           org: "tbm-vn",
           project: "electron",
-        }),
-      ],
-    };
+        })
+      );
+    }
+    console.log(inspect(config, false, 5));
+    return config;
   },
 };
